@@ -44,6 +44,7 @@
  ******************************************************************************/
 
 uint8_t Check_Bumper(void);
+int Check_TapeSensor(unsigned int sensorPin);
 
 
 

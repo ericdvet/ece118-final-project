@@ -107,6 +107,46 @@ uint8_t Check_Bumper(void) {
     return (returnVal);
 }
 
+static enum {
+    TAPE, NO_TAPE
+} lastTapeState;
+
+#define HIGH_THRESHOLD 10
+#define LOW_THRESHOLD 1
+
+int Check_TapeSensor(unsigned int sensorPort) {
+    static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int currentTapeReading = AD_ReadADPin(sensorPort);
+
+    enum {
+        TAPE, NO_TAPE
+    } currentTapeState;
+
+    if (currentTapeReading > HIGH_THRESHOLD)
+        currentTapeState = TAPE;
+    else
+        currentTapeState = NO_TAPE;
+
+    if (currentTapeState != lastTapeState) { //event detected
+        if (currentTapeState == TAPE)
+            thisEvent.EventType = TAPE_DETECTED;
+        if (currentTapeState == NO_TAPE)
+            thisEvent.EventType = TAPE_NOT_DETECTED;
+        thisEvent.EventParam = (uint16_t) currentTapeReading;
+        returnVal = TRUE;
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTopHSM(thisEvent);
+#else
+        SaveEvent(ThisEvent);
+#endif   
+    }
+
+    return (returnVal);
+}
+
 /* 
  * The Test Harness for the event checkers is conditionally compiled using
  * the EVENTCHECKER_TEST macro (defined either in the file or at the project level).

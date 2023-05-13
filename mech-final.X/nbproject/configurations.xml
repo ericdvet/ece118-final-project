@@ -29,6 +29,7 @@
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_Bumper.h</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/TopHSM.h</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/TemplateSubHSM.h</itemPath>
+      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_TapeSensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -57,6 +58,7 @@
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ES_Main.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/TopHSM.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/TemplateSubHSM.c</itemPath>
+      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_TapeSensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

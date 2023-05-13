@@ -48,6 +48,8 @@ typedef enum {
     BATTERY_DISCONNECTED,
     BUMPER_DOWN,
     BUMPER_UP,
+    TAPE_DETECTED,
+    TAPE_NOT_DETECTED,
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
 
@@ -66,6 +68,8 @@ static const char *EventNames[] = {
     "BATTERY_DISCONNECTED",
     "BUMPER_DOWN",
     "BUMPER_UP",
+    "TAPE_DETECTED",
+    "TAPE_NOT_DETECTED",
     "NUMBEROFEVENTS",
 };
 
@@ -151,13 +155,13 @@ static const char *EventNames[] = {
 #endif
 
 // These are the definitions for Service 2
-#if NUM_SERVICES > 2
+#if NUM_SERVICES > 3
 // the header file with the public fuction prototypes
-#define SERV_2_HEADER "TestService.h"
+#define SERV_2_HEADER "Service_TapeSensor.h"
 // the name of the Init function
-#define SERV_2_INIT TestServiceInit
+#define SERV_2_INIT TapeSensorServiceInit
 // the name of the run function
-#define SERV_2_RUN TestServiceRun
+#define SERV_2_RUN TapeSensorServiceRun
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif

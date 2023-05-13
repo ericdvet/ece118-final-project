@@ -22,7 +22,7 @@
 #include "AD.h"
 #include "ES_Configure.h"
 #include "ES_Framework.h"
-#include "Service_Bumper.h"
+#include "Service_TapeSensor.h"
 #include "EventChecker.h"
 #include <stdio.h>
 #include "TopHSM.h"
@@ -31,8 +31,9 @@
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 
-#define BATTERY_DISCONNECT_THRESHOLD 175
 #define DEBOUNCE_TICKS 200
+
+#define TAPE_SENSOR_PIN AD_PORTV3
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
@@ -62,7 +63,7 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitBumperService(uint8_t Priority) {
+uint8_t InitTapeSensorService(uint8_t Priority) {
     ES_Event ThisEvent;
 
     MyPriority = Priority;
@@ -90,7 +91,7 @@ uint8_t InitBumperService(uint8_t Priority) {
  *        be posted to. Remember to rename to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t PostBumperService(ES_Event ThisEvent) {
+uint8_t PostTapeSensorService(ES_Event ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -103,7 +104,7 @@ uint8_t PostBumperService(ES_Event ThisEvent) {
  * @note Remember to rename to something appropriate.
  *       Returns ES_NO_EVENT if the event have been "consumed." 
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-ES_Event RunBumperService(ES_Event ThisEvent) {
+ES_Event RunTapeSensorService(ES_Event ThisEvent) {
     ES_Event ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
@@ -129,7 +130,7 @@ ES_Event RunBumperService(ES_Event ThisEvent) {
 
         case ES_TIMEOUT:
             ES_Timer_InitTimer(BUTTON_DEBOUNCE_TIMER, DEBOUNCE_TICKS);
-            Check_Bumper();
+            Check_TapeSensor(TAPE_SENSOR_PIN);
             
 //            if (curEvent != lastEvent) { // check for change from last time
 //                ReturnEvent.EventType = curEvent;
@@ -152,6 +153,11 @@ ES_Event RunBumperService(ES_Event ThisEvent) {
 
     return ReturnEvent;
 }
+
+/*******************************************************************************
+ * PRIVATE FUNCTIONs                                                           *
+ ******************************************************************************/
+
 
 /*******************************************************************************
  * PRIVATE FUNCTIONs                                                           *
