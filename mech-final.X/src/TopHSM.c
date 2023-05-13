@@ -32,7 +32,12 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "TemplateSubHSM.h" //#include all sub state machines called
+#include "LoadingSubHSM.h" //#include all sub state machines called
+#include "ReturningSubHSM.h"
+#include "ShootingSubHSM.h"
+#include "Zone1SubHSM.h"
+#include "Zone23SubHSM.h"
+#include "ZoneLoadingSubHSM.h"
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -45,22 +50,22 @@
 
 typedef enum {
     InitPState,
-    ActiveLoadingState,
+    LoadingState,
     ZoneLoadingState,
     Zone23State,
     Zone1State,
-    Shooting,
-    Returning,
+    ShootingState,
+    ReturningState,
 } TopHSMState_t;
 
 static const char *StateNames[] = {
     "InitPState",
-    "ActiveLoadingState",
+    "LoadingState",
     "ZoneLoadingState",
     "Zone23State",
     "Zone1State",
-    "Shooting",
-    "Returning",
+    "ShootingState",
+    "ReturningState",
 };
 
 
@@ -148,19 +153,19 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                 // transition from the initial pseudo-state into the actual
                 // initial state
                 // Initialize all sub-state machines
-                InitActiveLoadingSubHSM();
+                InitLoadingSubHSM();
                 // now put the machine into the actual initial state
-                nextState = ActiveLoadingState;
+                nextState = LoadingState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case ActiveLoadingState:
-            ThisEvent = RunActiveLoadingSubHSM(ThisEvent);
+        case LoadingState:
+            ThisEvent = RunLoadingSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case LOADED:
-                    InitZoneLoadHSM();
+                    InitZoneLoadingSubHSM();
                     nextState = ZoneLoadingState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -175,7 +180,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunZoneLoadingSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case LOAD_TO_23:
-                    InitZone23HSM();
+                    InitZone23SubHSM();
                     nextState = Zone23State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -189,14 +194,14 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
         case Zone23State:
             ThisEvent = RunZone23SubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
-                case 23_TO_LOAD:
-                    InitZoneLoadHSM();
+                case ZONE_23_TO_LOAD:
+                    InitZoneLoadingSubHSM();
                     nextState = ZoneLoadingState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
-                case 23_TO_1:
-                    InitZone1LoadHSM();
+                case ZONE_23_TO_1:
+                    InitZone1SubHSM();
                     nextState = Zone1State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -211,7 +216,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunZone1SubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case READY_TO_SHOOT:
-                    InitShootingLoadHSM();
+                    InitShootingSubHSM();
                     nextState = ShootingState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -226,7 +231,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunShootingSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case SHOTS_FIRED:
-                    InitReturningLoadHSM();
+                    InitReturningSubHSM();
                     nextState = ReturningState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -241,7 +246,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunReturningSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case RETURNED:
-                    InitLoadingLoadHSM();
+                    InitLoadingSubHSM();
                     nextState = LoadingState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;

@@ -31,21 +31,19 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "LoadingSubHSM.h"
+#include "ShootingSubHSM.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    EmptySubState,
-    FullSubState,
-} LoadingSubHSMState_t;
+    SubFirstState,
+} ShootingSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "EmptySubState",
-    "FullSubState",
+    "SubFirstState",
 };
 
 
@@ -62,7 +60,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static LoadingSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static ShootingSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -80,11 +78,12 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitLoadingSubHSM(void) {
+uint8_t InitShootingSubHSM(void)
+{
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunLoadingSubHSM(INIT_EVENT);
+    returnEvent = RunShootingSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -106,48 +105,45 @@ uint8_t InitLoadingSubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
+ES_Event RunShootingSubHSM(ES_Event ThisEvent)
+{
     uint8_t makeTransition = FALSE; // use to flag transition
-    LoadingSubHSMState_t nextState; // <- change type to correct enum
+    ShootingSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
     switch (CurrentState) {
-        case InitPSubState: // If current state is initial Psedudo State
-            if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
-            {
-                // this is where you would put any actions associated with the
-                // transition from the initial pseudo-state into the actual
-                // initial state
+    case InitPSubState: // If current state is initial Psedudo State
+        if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
+        {
+            // this is where you would put any actions associated with the
+            // transition from the initial pseudo-state into the actual
+            // initial state
 
-                // now put the machine into the actual initial state
-                nextState = EmptySubState;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-            }
-            break;
+            // now put the machine into the actual initial state
+            nextState = SubFirstState;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+        }
+        break;
 
-        case EmptySubState: // in the first state, replace this with correct names
-            switch (ThisEvent.EventType) {
-                case REFILLED:
-                    nextState = FullSubState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = REFILLED;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
+    case SubFirstState: // in the first state, replace this with correct names
+        switch (ThisEvent.EventType) {
+        case ES_NO_EVENT:
+        default: // all unhandled events pass the event back up to the next level
             break;
-
-        default: // all unhandled states fall into here
-            break;
+        }
+        break;
+        
+    default: // all unhandled states fall into here
+        break;
     } // end switch on Current State
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunLoadingSubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunShootingSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunLoadingSubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunShootingSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end

@@ -50,6 +50,15 @@ typedef enum {
     BUMPER_UP,
     TAPE_DETECTED,
     TAPE_NOT_DETECTED,
+    // TOP HSM
+    LOADED,
+    LOAD_TO_23,
+    ZONE_23_TO_LOAD,
+    ZONE_23_TO_1,
+    READY_TO_SHOOT,
+    SHOTS_FIRED,
+    RETURNED,
+    REFILLED,
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
 
@@ -70,6 +79,14 @@ static const char *EventNames[] = {
     "BUMPER_UP",
     "TAPE_DETECTED",
     "TAPE_NOT_DETECTED",
+    "LOADED",
+    "LOAD_TO_23",
+    "ZONE_23_TO_LOAD",
+    "ZONE_23_TO_1",
+    "READY_TO_SHOOT",
+    "SHOTS_FIRED",
+    "RETURNED",
+    "REFILLED",
     "NUMBEROFEVENTS",
 };
 
