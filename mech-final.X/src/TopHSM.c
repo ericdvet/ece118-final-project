@@ -45,12 +45,22 @@
 
 typedef enum {
     InitPState,
-    FirstState,
-} TemplateHSMState_t;
+    ActiveLoadingState,
+    ZoneLoadingState,
+    Zone23State,
+    Zone1State,
+    Shooting,
+    Returning,
+} TopHSMState_t;
 
 static const char *StateNames[] = {
-	"InitPState",
-	"FirstState",
+    "InitPState",
+    "ActiveLoadingState",
+    "ZoneLoadingState",
+    "Zone23State",
+    "Zone1State",
+    "Shooting",
+    "Returning",
 };
 
 
@@ -66,7 +76,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static TemplateHSMState_t CurrentState = InitPState; // <- change enum name to match ENUM
+static TopHSMState_t CurrentState = InitPState; // <- change enum name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -84,8 +94,7 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitTopHSM(uint8_t Priority)
-{
+uint8_t InitTopHSM(uint8_t Priority) {
     MyPriority = Priority;
     // put us into the Initial PseudoState
     CurrentState = InitPState;
@@ -106,8 +115,7 @@ uint8_t InitTopHSM(uint8_t Priority)
  *        be posted to. Remember to rename to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t PostTopHSM(ES_Event ThisEvent)
-{
+uint8_t PostTopHSM(ES_Event ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -126,43 +134,126 @@ uint8_t PostTopHSM(ES_Event ThisEvent)
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunTopHSM(ES_Event ThisEvent)
-{
+ES_Event RunTopHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    TemplateHSMState_t nextState; // <- change type to correct enum
+    TopHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
     switch (CurrentState) {
-    case InitPState: // If current state is initial Pseudo State
-        if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
-        {
-            // this is where you would put any actions associated with the
-            // transition from the initial pseudo-state into the actual
-            // initial state
-            // Initialize all sub-state machines
-            InitTemplateSubHSM();
-            // now put the machine into the actual initial state
-            nextState = FirstState;
-            makeTransition = TRUE;
-            ThisEvent.EventType = ES_NO_EVENT;
-            ;
-        }
-        break;
-
-    case FirstState: // in the first state, replace this with correct names
-        // run sub-state machine for this state
-        //NOTE: the SubState Machine runs and responds to events before anything in the this
-        //state machine does
-        ThisEvent = RunTemplateSubHSM(ThisEvent);
-        switch (ThisEvent.EventType) {
-        case ES_NO_EVENT:
-        default:
+        case InitPState: // If current state is initial Pseudo State
+            if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
+            {
+                // this is where you would put any actions associated with the
+                // transition from the initial pseudo-state into the actual
+                // initial state
+                // Initialize all sub-state machines
+                InitActiveLoadingSubHSM();
+                // now put the machine into the actual initial state
+                nextState = ActiveLoadingState;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+            }
             break;
-        }
-        break;
-    default: // all unhandled states fall into here
-        break;
+
+        case ActiveLoadingState:
+            ThisEvent = RunActiveLoadingSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case LOADED:
+                    InitZoneLoadHSM();
+                    nextState = ZoneLoadingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case ZoneLoadingState:
+            ThisEvent = RunZoneLoadingSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case LOAD_TO_23:
+                    InitZone23HSM();
+                    nextState = Zone23State;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case Zone23State:
+            ThisEvent = RunZone23SubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case 23_TO_LOAD:
+                    InitZoneLoadHSM();
+                    nextState = ZoneLoadingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case 23_TO_1:
+                    InitZone1LoadHSM();
+                    nextState = Zone1State;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case Zone1State:
+            ThisEvent = RunZone1SubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case READY_TO_SHOOT:
+                    InitShootingLoadHSM();
+                    nextState = ShootingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case ShootingState:
+            ThisEvent = RunShootingSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case SHOTS_FIRED:
+                    InitReturningLoadHSM();
+                    nextState = ReturningState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case ReturningState:
+            ThisEvent = RunReturningSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case RETURNED:
+                    InitLoadingLoadHSM();
+                    nextState = LoadingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        default: // all unhandled states fall into here
+            break;
     } // end switch on Current State
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY

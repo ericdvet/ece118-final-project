@@ -42,9 +42,6 @@ unsigned char Robot_RearRightBumper(void);
 unsigned char Robot_ReadBumpers(void);
 
 
-char Robot_LEDSSet(uint16_t pattern);
-
-
 #endif 
 
 /* *****************************************************************************
