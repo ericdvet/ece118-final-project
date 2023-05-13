@@ -22,10 +22,12 @@
 #include "AD.h"
 #include "ES_Configure.h"
 #include "ES_Framework.h"
-#include "Service_TapeSensor.h"
+#include "Service_PingSensor.h"
 #include "EventChecker.h"
 #include <stdio.h>
 #include "TopHSM.h"
+#include "IO_Ports.h"
+#include "timers.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -33,7 +35,10 @@
 
 #define DEBOUNCE_TICKS 200
 
-#define TAPE_SENSOR_PIN AD_PORTV3
+#define TRIGGER_PORT PORTV
+#define TRIGGER_PIN PIN3
+#define ECHO_PIN AD_PORTV4
+#define THRESHOLD_PING_SENSOR 0
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
@@ -49,6 +54,14 @@
 
 static uint8_t MyPriority;
 
+typedef enum {
+    SENSOR_NONE,
+    SENSOR_PING,
+    SENSOR_BURST,
+    SENSOR_OUTPUT,
+    SENSOR_DONE,
+} SensorStates_t;
+
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -63,7 +76,7 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitTapeSensorService(uint8_t Priority) {
+uint8_t InitPingSensorService(uint8_t Priority) {
     ES_Event ThisEvent;
 
     MyPriority = Priority;
@@ -91,7 +104,7 @@ uint8_t InitTapeSensorService(uint8_t Priority) {
  *        be posted to. Remember to rename to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t PostTapeSensorService(ES_Event ThisEvent) {
+uint8_t PostPingSensorService(ES_Event ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -104,7 +117,7 @@ uint8_t PostTapeSensorService(ES_Event ThisEvent) {
  * @note Remember to rename to something appropriate.
  *       Returns ES_NO_EVENT if the event have been "consumed." 
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-ES_Event RunTapeSensorService(ES_Event ThisEvent) {
+ES_Event RunPingSensorService(ES_Event ThisEvent) {
     ES_Event ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
@@ -112,14 +125,13 @@ ES_Event RunTapeSensorService(ES_Event ThisEvent) {
      in here you write your service code
      *******************************************/
     static ES_EventTyp_t lastEvent = ES_NO_EVENT;
-    ES_EventTyp_t curEvent;
+    static SensorStates_t sensorState = SENSOR_NONE;
+    static int timeLogger;
+    int sensorReading;
 
     switch (ThisEvent.EventType) {
         case ES_INIT:
-            // No hardware initialization or single time setups, those
-            // go in the init function above.
-            //
-            // This section is used to reset service for some reason
+            sensorState = SENSOR_NONE;
             break;
         case ES_TIMERACTIVE:
 
@@ -130,29 +142,68 @@ ES_Event RunTapeSensorService(ES_Event ThisEvent) {
 
         case ES_TIMEOUT:
             ES_Timer_InitTimer(BUTTON_DEBOUNCE_TIMER, DEBOUNCE_TICKS);
-            Check_TapeSensor(TAPE_SENSOR_PIN);
-            
-//            if (curEvent != lastEvent) { // check for change from last time
-//                ReturnEvent.EventType = curEvent;
-//                ReturnEvent.EventParam = batVoltage;
-//                lastEvent = curEvent; // update history
-//#ifndef SIMPLESERVICE_TEST           // keep this as is for test harness
-//                PostTopHSM(ReturnEvent);
-//#else
-//                PostTemplateService(ReturnEvent);
-//#endif   
-//            }
-            break;
+            switch (sensorState) {
+                case SENSOR_NONE:
+                    sensorReading = TIMERS_GetTime();
+                    sensorState = SENSOR_PING;
+                    break;
+
+                case SENSOR_PING:
+                    IO_PortsSetPortBits(TRIGGER_PORT, TRIGGER_PIN);
+                    if (TIMERS_GetTime() - sensorReading >= 11)
+                        sensorState = SENSOR_BURST;
+                    break;
+
+                case SENSOR_BURST:
+                    IO_PortsClearPortBits(TRIGGER_PORT, TRIGGER_PIN);
+                    if (AD_ReadADPin(ECHO_PIN) > THRESHOLD_PING_SENSOR) {
+                        sensorState = SENSOR_OUTPUT;
+                        sensorReading = TIMERS_GetTime();
+                    }
+                    break;
+
+                case SENSOR_OUTPUT:
+                    if (AD_ReadADPin(ECHO_PIN) <= THRESHOLD_PING_SENSOR) {
+                        sensorState = SENSOR_DONE;
+                        ReturnEvent.EventType = SENSOR_READING;
+                        ReturnEvent.EventParam = (1000 * (TIMERS_GetTime() - sensorReading)) / 148;
+                        PostTopHSM(ReturnEvent);
+                        sensorReading = TIMERS_GetTime();
+
+                    }
+                    break;
+
+                case SENSOR_DONE:
+                    if (TIMERS_GetTime() - sensorReading >= 21)
+                        sensorState = SENSOR_NONE;
+                    break;
+
+                default:
+                    break;
+
+                    //            if (curEvent != lastEvent) { // check for change from last time
+                    //                ReturnEvent.EventType = curEvent;
+                    //                ReturnEvent.EventParam = batVoltage;
+                    //                lastEvent = curEvent; // update history
+                    //#ifndef SIMPLESERVICE_TEST           // keep this as is for test harness
+                    //                PostTopHSM(ReturnEvent);
+                    //#else
+                    //                PostTemplateService(ReturnEvent);
+                    //#endif   
+                    //            }
+                    break;
 #ifdef SIMPLESERVICE_TEST     // keep this as is for test harness      
-        default:
-            printf("\r\nEvent: %s\tParam: 0x%X",
-                    EventNames[ThisEvent.EventType], ThisEvent.EventParam);
-            break;
+                default:
+                    printf("\r\nEvent: %s\tParam: 0x%X",
+                            EventNames[ThisEvent.EventType], ThisEvent.EventParam);
+                    break;
 #endif
+            }
     }
 
     return ReturnEvent;
 }
+
 
 /*******************************************************************************
  * PRIVATE FUNCTIONs                                                           *

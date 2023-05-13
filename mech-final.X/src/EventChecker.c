@@ -33,6 +33,8 @@
 #include "AD.h"
 #include "robot.h"
 #include "TopHSM.h"
+#include "timers.h"
+#include <xc.h>
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -146,6 +148,34 @@ int Check_TapeSensor(unsigned int sensorPort) {
 
     return (returnVal);
 }
+
+//#define TIMER1_US_PER_TICK 25
+//#define ECHO_THRESHOLD 0
+//
+//typedef enum {
+//    ECHO_NONE,
+//            ECHO_HIGH,
+//            ECHO_LOW,
+//} EchoState_t;
+//
+//static EchoState_t lastEchoState = ECHO_NONE;
+//static int timerStart;
+//static int microSecCount;
+//
+//int Check_PingSensor(unsigned int EWpin) {
+//    EchoState_t currentEchoState;
+//    if (AD_ReadADPin(EWPin) > ECHO_THRESHOLD)
+//        currentEchoState = ECHO_HIGH;
+//    else
+//        currentEchoState = ECHO_LOW;
+//    
+//    if (lastEchoState == ECHO_LOW && currentEchoState == ECHO_HIGH) {
+//        OpenTimer(TI_ON, 0xFFFF);
+//        timerStart = ReadTimer();
+//        T1CON
+//        
+//    }
+//}
 
 /* 
  * The Test Harness for the event checkers is conditionally compiled using

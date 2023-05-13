@@ -50,6 +50,7 @@ typedef enum {
     BUMPER_UP,
     TAPE_DETECTED,
     TAPE_NOT_DETECTED,
+            SENSOR_READING,
     // TOP HSM
     LOADED,
     LOAD_TO_23,
@@ -79,6 +80,7 @@ static const char *EventNames[] = {
     "BUMPER_UP",
     "TAPE_DETECTED",
     "TAPE_NOT_DETECTED",
+    "SENSOR_READING",
     "LOADED",
     "LOAD_TO_23",
     "ZONE_23_TO_LOAD",
