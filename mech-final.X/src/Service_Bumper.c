@@ -112,6 +112,8 @@ ES_Event RunBumperService(ES_Event ThisEvent) {
      *******************************************/
     static ES_EventTyp_t lastEvent = ES_NO_EVENT;
     ES_EventTyp_t curEvent;
+    
+//    printf("\ntest");
 
     switch (ThisEvent.EventType) {
         case ES_INIT:

@@ -2,6 +2,12 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/UCSC/2022-2023/Spring%202023/ECE%20118/mech-final-project/mech-final.X/src/Service_TapeSensorService.c</file>
+            <file>file:/C:/UCSC/2022-2023/Spring%202023/ECE%20118/mech-final-project/mech-final.X/include/EventChecker.h</file>
+            <file>file:/C:/UCSC/2022-2023/Spring%202023/ECE%20118/mech-final-project/mech-final.X/src/Service_PingSensor.c</file>
+            <file>file:/C:/UCSC/2022-2023/Spring%202023/ECE%20118/mech-final-project/mech-final.X/include/Service_PingSensor.h</file>
+            <file>file:/C:/UCSC/2022-2023/Spring%202023/ECE%20118/mech-final-project/mech-final.X/src/EventChecker.c</file>
+        </group>
     </open-files>
 </project-private>

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "ES_Configure.h"
 #include "ES_Framework.h"
+#include "Robot.h"
+#include "AD.h"
 
 
 //void main(void)
@@ -16,6 +18,9 @@
 //
 //
 //    // Your hardware initialization function calls go here
+//    BOARD_Init();
+//    Robot_Init();
+//    AD_Init();
 //
 //    // now initialize the Events and Services Framework and start it running
 //    ErrorType = ES_Initialize();

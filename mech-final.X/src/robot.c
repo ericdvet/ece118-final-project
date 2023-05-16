@@ -29,58 +29,56 @@
 #define BUMPER_REAR_LEFT PIN5
 #define BUMPER_REAR_RIGHT PIN6
 
-#define LEFT_PWM PWM_PORTY10
-#define RIGHT_PWM PWM_PORTY12
+#define LEFT_IN_1 PWM_PORTY10
+#define LEFT_IN_2 PWM_PORTY12
+#define RIGHT_IN_1 PWM_PORTY04
+#define RIGHT_IN_2 PWM_PORTX11
 
 #define ROACH_BAT_VOLTAGE BAT_VOLTAGE
 
 #define NUMLEDS 12
 
-
 void Robot_Init(void) {
 
     PWM_Init();
     PWM_SetFrequency(1000);
-    PWM_AddPins(LEFT_PWM | RIGHT_PWM);
+    PWM_AddPins(LEFT_IN_1);
+    PWM_AddPins(LEFT_IN_2);
+    PWM_AddPins(RIGHT_IN_1);
+    PWM_AddPins(RIGHT_IN_2);
 
-    LEFT_DIR_TRIS = 0;
-    LEFT_DIR_INV_TRIS = 0;
-    RIGHT_DIR_TRIS = 0;
-    RIGHT_DIR_INV_TRIS = 0;
-    LEFT_DIR = 0;
-    LEFT_DIR_INV = ~LEFT_DIR;
-    RIGHT_DIR = 0;
-    RIGHT_DIR_INV = ~RIGHT_DIR;
 
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
 }
 
 void Robot_LeftMotor(int speed) {
-    int newSpeed;
+    int in1, in2;
 
-    if (speed <= 0) {
-        LEFT_DIR = 0;
-        newSpeed = speed * -1;
+    if (speed < 0) {
+        in1 = speed * -1;
+        in2 = 0;
     } else {
-        LEFT_DIR = 1;
-        newSpeed = speed;
+        in1 = 0;
+        in2 = speed;
     }
 
-    PWM_SetDutyCycle(LEFT_PWM, speed);
+    PWM_SetDutyCycle(LEFT_IN_1, in1);
+    PWM_SetDutyCycle(LEFT_IN_2, in2);
 }
 
 void Robot_RightMotor(int speed) {
-    int newSpeed;
+    int in1, in2;
 
-    if (speed <= 0) {
-        RIGHT_DIR = 0;
-        newSpeed = speed * -1;
+    if (speed < 0) {
+        in1 = speed * -1;
+        in2 = 0;
     } else {
-        RIGHT_DIR = 1;
-        newSpeed = speed;
+        in1 = 0;
+        in2 = speed;
     }
 
-    PWM_SetDutyCycle(RIGHT_PWM, speed);
+    PWM_SetDutyCycle(RIGHT_IN_1, in2);
+    PWM_SetDutyCycle(RIGHT_IN_2, in1);
 }
 
 unsigned char Robot_FrontLeftBumper(void) {
@@ -96,7 +94,7 @@ unsigned char Robot_RearLeftBumper(void) {
 }
 
 unsigned char Robot_RearRightBumper(void) {
-    return (IO_PortsReadPort(BUMPER_PORT) & BUMPER_REAR_LEFT);
+    return (IO_PortsReadPort(BUMPER_PORT) & BUMPER_REAR_RIGHT);
 }
 
 unsigned char Robot_ReadBumpers(void) {
@@ -105,13 +103,13 @@ unsigned char Robot_ReadBumpers(void) {
     if (Robot_FrontLeftBumper())
         bumperMask = bumperMask | 0b1000;
 
-    if (Robot_FrontLeftBumper())
+    if (Robot_FrontRightBumper())
         bumperMask = bumperMask | 0b0100;
 
-    if (Robot_FrontLeftBumper())
+    if (Robot_RearLeftBumper())
         bumperMask = bumperMask | 0b0010;
 
-    if (Robot_FrontLeftBumper())
+    if (Robot_RearRightBumper())
         bumperMask = bumperMask | 0b0001;
 
     return bumperMask;
@@ -129,19 +127,51 @@ unsigned char Robot_ReadBumpers(void) {
 int main(void) {
     BOARD_Init();
     Robot_Init();
+    AD_Init();
 
-    printf("\r\ntesting... testing... 1 2 3...");
+    printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
+    
+    AD_AddPins(AD_PORTV3);
+    while(1) {
+        printf("\n\t%d", AD_ReadADPin(AD_PORTV3));
+    }
 
-    Robot_LeftMotor(1000);
-    DELAY(DELAY_TIME);
-    Robot_LeftMotor(0);
-    DELAY(DELAY_TIME);
-    Robot_RightMotor(1000);
-    DELAY(DELAY_TIME);
-    Robot_RightMotor(0);
-    DELAY(DELAY_TIME);
+    // IO library output tests
+    //    while (1) {
+    //        IO_PortsSetPortOutputs(PORTX, PIN3);
+    //        IO_PortsSetPortOutputs(PORTX, PIN4);
+    //        DELAY(100000);
+    //        IO_PortsTogglePortBits(PORTX, PIN3);
+    //        IO_PortsClearPortBits(PORTX, PIN4);
+    //    }
 
     while (1) {
+        Robot_RightMotor(1000);
+        DELAY(1000000);
+        Robot_RightMotor(800);
+        DELAY(1000000);
+        Robot_RightMotor(600);
+        DELAY(1000000);
+        Robot_RightMotor(400);
+        DELAY(1000000);
+        Robot_RightMotor(200);
+        DELAY(1000000);
+        Robot_RightMotor(0);
+        DELAY(1000000);
+        Robot_RightMotor(-200);
+        DELAY(1000000);
+        Robot_RightMotor(-400);
+        DELAY(1000000);
+        Robot_RightMotor(-600);
+        DELAY(1000000);
+        Robot_RightMotor(-800);
+        DELAY(1000000);
+        Robot_RightMotor(-1000);
+        DELAY(1000000);
+    }
+
+    while (1) {
+        printf("\n\t%d", Robot_ReadBumpers());
         switch (Robot_ReadBumpers()) {
             case 0b1000:
                 printf("\r\nFront Left Bumper");
@@ -159,8 +189,8 @@ int main(void) {
                 break;
         }
     }
-    
-    while(1);
+
+    while (1);
 }
 
 #endif
