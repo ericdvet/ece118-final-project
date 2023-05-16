@@ -101,7 +101,7 @@ static const char *EventNames[] = {
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST
+#define EVENT_CHECK_LIST 
 
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
@@ -109,7 +109,7 @@ static const char *EventNames[] = {
 // a timers, then you can use TIMER_UNUSED
 #define TIMER_UNUSED ((pPostFunc)0)
 #define TIMER0_RESP_FUNC PostBumperService
-#define TIMER1_RESP_FUNC TIMER_UNUSED
+#define TIMER1_RESP_FUNC PostPeakDetectorService
 #define TIMER2_RESP_FUNC TIMER_UNUSED
 #define TIMER3_RESP_FUNC TIMER_UNUSED
 #define TIMER4_RESP_FUNC TIMER_UNUSED
@@ -133,6 +133,8 @@ static const char *EventNames[] = {
 // the timer number matches where the timer event will be routed
 
 #define BUTTON_DEBOUNCE_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
+#define PEAK_DETECTOR_TIMER 1
+
 
 
 /****************************************************************************/
@@ -144,7 +146,7 @@ static const char *EventNames[] = {
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 2
+#define NUM_SERVICES 4
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service
@@ -174,13 +176,13 @@ static const char *EventNames[] = {
 #endif
 
 // These are the definitions for Service 2
-#if NUM_SERVICES > 3
+#if NUM_SERVICES > 2
 // the header file with the public fuction prototypes
-#define SERV_2_HEADER "Service_TapeSensor.h"
+#define SERV_2_HEADER "Service_PeakDetector.h"
 // the name of the Init function
-#define SERV_2_INIT TapeSensorServiceInit
+#define SERV_2_INIT InitPeakDetectorService
 // the name of the run function
-#define SERV_2_RUN TapeSensorServiceRun
+#define SERV_2_RUN RunPeakDetectorService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -191,11 +193,11 @@ static const char *EventNames[] = {
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public fuction prototypes
-#define SERV_3_HEADER "TestService.h"
+#define SERV_3_HEADER "TopHSM.h"
 // the name of the Init function
-#define SERV_3_INIT TestServiceInit
+#define SERV_3_INIT InitTopHSM
 // the name of the run function
-#define SERV_3_RUN TestServiceRun
+#define SERV_3_RUN RunTopHSM
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif

@@ -19,8 +19,8 @@
  * Modified on September 12, 2016, 7:59 PM
  */
 
-#ifndef TEMPLATEEVENTCHECKER_H
-#define	TEMPLATEEVENTCHECKER_H
+#ifndef EVENT_CHECKER_H
+#define	EVENT_CHECKER_H
 
 /*******************************************************************************
  * PUBLIC #INCLUDES                                                            *
@@ -46,6 +46,8 @@
 uint8_t Check_Bumper(void);
 int Check_TapeSensor(unsigned int sensorPin);
 int Check_PingSensor(unsigned int EWpin);
+void InitBuffer();
+uint8_t Check_PeakDetector(void);
 
 
 

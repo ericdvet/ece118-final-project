@@ -21,6 +21,8 @@ void Robot_LeftMotor(int speed);
 
 void Robot_RightMotor(int speed);
 
+void Robot_Servo(int position);
+
 
 unsigned int Robot_BatteryVoltage(void);
 

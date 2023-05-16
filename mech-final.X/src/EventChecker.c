@@ -80,7 +80,7 @@ static enum {
 static unsigned char lastBumperLevel = 0;
 
 uint8_t Check_Bumper(void) {
-//    printf("\nin check bumper");
+    //    printf("\nin check bumper");
     static ES_EventTyp_t lastEvent = BUMPER_UP;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
@@ -95,24 +95,24 @@ uint8_t Check_Bumper(void) {
         currentBumperState = DOWN;
     else
         currentBumperState = UP;
-    
-//    printf("\n\t%d", currentBumperLevel);
+
+    //    printf("\n\t%d", currentBumperLevel);
 
     if (currentBumperState != lastBumperState) { //event detected
         if (currentBumperState == DOWN) {
-            printf("\n\tdown");
+            //            printf("\n\tdown");
             thisEvent.EventType = BUMPER_DOWN;
         }
         if (currentBumperState == UP) {
-            printf("\n\tup");
+            //            printf("\n\tup");
             thisEvent.EventType = BUMPER_UP;
         }
         thisEvent.EventParam = currentBumperLevel;
         returnVal = TRUE;
-        printf("\n\tEvent %d with param %d", thisEvent.EventType, thisEvent.EventParam);
-        PostTopHSM(thisEvent); 
+        //        printf("\n\tEvent %d with param %d", thisEvent.EventType, thisEvent.EventParam);
+        PostTopHSM(thisEvent);
     }
-    
+
     lastBumperState = currentBumperState;
     return (returnVal);
 }
@@ -157,81 +157,71 @@ int Check_TapeSensor(unsigned int sensorPort) {
     return (returnVal);
 }
 
-uint8_t Check_Bumper(void) {
-//    printf("\nin check bumper");
-    static ES_EventTyp_t lastEvent = BUMPER_UP;
-    ES_EventTyp_t curEvent;
-    ES_Event thisEvent;
-    uint8_t returnVal = FALSE;
-    unsigned char currentBumperLevel = Robot_ReadBumpers();
+#define BUFFER_SIZE 10
 
-    enum {
-        DOWN, UP
-    } currentBumperState;
+typedef struct CircularBuffer *Buffer;
 
-    if (currentBumperLevel)
-        currentBumperState = DOWN;
-    else
-        currentBumperState = UP;
-    
-//    printf("\n\t%d", currentBumperLevel);
+typedef struct CircularBuffer {
+    int head;
+    unsigned int buffer [BUFFER_SIZE];
+} CircularBuffer;
 
-    if (currentBumperState != lastBumperState) { //event detected
-        if (currentBumperState == DOWN) {
-            printf("\n\tdown");
-            thisEvent.EventType = BUMPER_DOWN;
-        }
-        if (currentBumperState == UP) {
-            printf("\n\tup");
-            thisEvent.EventType = BUMPER_UP;
-        }
-        thisEvent.EventParam = currentBumperLevel;
-        returnVal = TRUE;
-        printf("\n\tEvent %d with param %d", thisEvent.EventType, thisEvent.EventParam);
-        PostTopHSM(thisEvent); 
-    }
-    
-    lastBumperState = currentBumperState;
-    return (returnVal);
+
+CircularBuffer peakBuffer;
+
+void InitBuffer() {
+    //    peakBuffer = malloc(sizeof (peakBuffer));
+    //    peakBuffer->head = 0;
+    //    for (int i = 0; i < BUFFER_SIZE; i++)
+    //        peakBuffer->buffer[i] = 0;
+    peakBuffer.head = 0;
+    for (int i = 0; i < BUFFER_SIZE; i++)
+        peakBuffer.buffer[i] = 0;
 }
 
-static enum {
-    TAPE, NO_TAPE
-} lastTapeState;
+static int lastPeak = 0;
 
-#define HIGH_THRESHOLD 10
-#define LOW_THRESHOLD 1
+unsigned int filterPeak(unsigned int peakReading) {
+    int newHead, sum;
+    newHead = peakBuffer.head + 1;
+    sum = 0;
 
-int Check_TapeSensor(unsigned int sensorPort) {
-    static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
+    if (newHead >= BUFFER_SIZE) {
+        newHead = 0;
+    }
+
+    peakBuffer.buffer[peakBuffer.head] = peakReading;
+    peakBuffer.head = newHead;
+
+    //    printf("\n\t(%d)->", peakReading);
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        //        printf("[%d]", peakBuffer.buffer[i]);
+        sum += peakBuffer.buffer[i];
+    }
+
+    return (sum / BUFFER_SIZE);
+}
+
+uint8_t Check_PeakDetector(void) {
+    //    printf("\nin check bumper");
+    static ES_EventTyp_t lastEvent;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    unsigned int currentTapeReading = AD_ReadADPin(sensorPort);
+    int currentPeak = filterPeak(AD_ReadADPin(AD_PORTV3));
+    //    printf("\n\t%d", currentPeak);
 
-    enum {
-        TAPE, NO_TAPE
-    } currentTapeState;
+    printf("\n\t%d", currentPeak);
+    //    printf("\n\t(%d)->[%d]", AD_ReadADPin(AD_PORTV3), filterPeak(AD_ReadADPin(AD_PORTV3)));
 
-    if (currentTapeReading > HIGH_THRESHOLD)
-        currentTapeState = TAPE;
-    else
-        currentTapeState = NO_TAPE;
-
-    if (currentTapeState != lastTapeState) { //event detected
-        if (currentTapeState == TAPE)
-            thisEvent.EventType = TAPE_DETECTED;
-        if (currentTapeState == NO_TAPE)
-            thisEvent.EventType = TAPE_NOT_DETECTED;
-        thisEvent.EventParam = (uint16_t) currentTapeReading;
-        returnVal = TRUE;
-#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTopHSM(thisEvent);
-#else
-        SaveEvent(ThisEvent);
-#endif   
+    if (abs(lastPeak - currentPeak) >= 10) { //event detected
+        //        thisEvent.EventParam = currentBumperLevel;
+        //        returnVal = TRUE;
+        //        PostTopHSM(thisEvent)
+        lastPeak = currentPeak;
     }
 
+    //    lastPeak = currentPeak;
     return (returnVal);
 }
 

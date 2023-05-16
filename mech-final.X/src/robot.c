@@ -7,6 +7,7 @@
 #include "pwm.h"
 #include "serial.h"
 #include "AD.h"
+#include "RC_Servo.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -36,6 +37,8 @@
 
 #define ROACH_BAT_VOLTAGE BAT_VOLTAGE
 
+#define SERVO_PIN RC_PORTY06
+
 #define NUMLEDS 12
 
 void Robot_Init(void) {
@@ -46,7 +49,12 @@ void Robot_Init(void) {
     PWM_AddPins(LEFT_IN_2);
     PWM_AddPins(RIGHT_IN_1);
     PWM_AddPins(RIGHT_IN_2);
+    
+    AD_Init();
+    AD_AddPins(AD_PORTV3);
 
+    RC_Init();
+    RC_AddPins(SERVO_PIN);
 
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
 }
@@ -79,6 +87,10 @@ void Robot_RightMotor(int speed) {
 
     PWM_SetDutyCycle(RIGHT_IN_1, in2);
     PWM_SetDutyCycle(RIGHT_IN_2, in1);
+}
+
+void Robot_Servo(int position) {
+    RC_SetPulseTime(SERVO_PIN, position);
 }
 
 unsigned char Robot_FrontLeftBumper(void) {
@@ -115,7 +127,7 @@ unsigned char Robot_ReadBumpers(void) {
     return bumperMask;
 }
 
-#define ROBOT_TEST
+//#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>
@@ -127,14 +139,37 @@ unsigned char Robot_ReadBumpers(void) {
 int main(void) {
     BOARD_Init();
     Robot_Init();
-    AD_Init();
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
     
-    AD_AddPins(AD_PORTV3);
     while(1) {
-        printf("\n\t%d", AD_ReadADPin(AD_PORTV3));
+        Robot_Servo(MINPULSE);
+        DELAY(1000000);
+        Robot_Servo(1200);
+        DELAY(1000000);
+        Robot_Servo(1400);
+        DELAY(1000000);
+        Robot_Servo(1600);
+        DELAY(1000000);
+        Robot_Servo(1800);
+        DELAY(1000000);
+        Robot_Servo(MAXPULSE);
+        DELAY(1000000);
+        Robot_Servo(1800);
+        DELAY(1000000);
+        Robot_Servo(1600);
+        DELAY(1000000);
+        Robot_Servo(1400);
+        DELAY(1000000);
+        Robot_Servo(1200);
+        DELAY(1000000);
+        Robot_Servo(MINPULSE);
+        DELAY(1000000);
     }
+//    AD_AddPins(AD_PORTV3);
+//    while(1) {
+//        printf("\n\t%d", AD_ReadADPin(AD_PORTV3));
+//    }
 
     // IO library output tests
     //    while (1) {

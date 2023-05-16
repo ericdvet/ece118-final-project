@@ -7,7 +7,9 @@ build/default/production/_ext/1548841071/ES_PostList.o: \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_ServiceHeaders.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_Configure.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_KeyboardInput.h \
- C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_Bumper.h
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_Bumper.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/TopHSM.h
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_Configure.h:
 
@@ -24,3 +26,7 @@ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_KeyboardInput.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_Bumper.h:
+
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h:
+
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/TopHSM.h:

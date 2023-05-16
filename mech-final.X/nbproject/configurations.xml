@@ -33,6 +33,7 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_Bumper.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_TapeSensor.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_PingSensor.h</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h</itemPath>
       </logicalFolder>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/AD.h</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/BOARD.h</itemPath>
@@ -75,6 +76,7 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_Bumper.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PingSensor.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_TapeSensorService.c</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c</itemPath>
       </logicalFolder>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/AD.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/BOARD.c</itemPath>
@@ -212,7 +214,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="heap-size" value=""/>
+        <property key="heap-size" value="1000"/>
         <property key="input-libraries" value=""/>
         <property key="kseg-length" value=""/>
         <property key="kseg-origin" value=""/>
@@ -275,6 +277,24 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
+      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c"
+            ex="false"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>

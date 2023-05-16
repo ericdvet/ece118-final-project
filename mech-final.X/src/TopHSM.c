@@ -38,6 +38,7 @@
 #include "Zone1SubHSM.h"
 #include "Zone23SubHSM.h"
 #include "ZoneLoadingSubHSM.h"
+#include <stdio.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -144,7 +145,9 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
     TopHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
-
+    
+    printf("\n\tRunning TOP HSM");
+    
     switch (CurrentState) {
         case InitPState: // If current state is initial Pseudo State
             if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
