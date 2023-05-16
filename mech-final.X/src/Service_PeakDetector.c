@@ -116,7 +116,8 @@ ES_Event RunPeakDetectorService(ES_Event ThisEvent) {
 
     switch (ThisEvent.EventType) {
         case ES_INIT:
-            InitBuffer();
+            InitBuffer2KHz();
+            InitBuffer15KHz();
             // No hardware initialization or single time setups, those
             // go in the init function above.
             //
@@ -131,7 +132,8 @@ ES_Event RunPeakDetectorService(ES_Event ThisEvent) {
 
         case ES_TIMEOUT:
             ES_Timer_InitTimer(PEAK_DETECTOR_TIMER, DEBOUNCE_TICKS);
-            Check_PeakDetector();
+            Check_PeakDetector2KHz();
+            Check_PeakDetector15KHz();
             
 //            if (curEvent != lastEvent) { // check for change from last time
 //                ReturnEvent.EventType = curEvent;

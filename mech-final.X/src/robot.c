@@ -39,6 +39,9 @@
 
 #define SERVO_PIN RC_PORTY06
 
+#define PEAK_2KHZ_PIN AD_PORTV3
+#define PEAK_15KHZ_PIN AD_PORTV4
+
 #define NUMLEDS 12
 
 void Robot_Init(void) {
@@ -51,7 +54,8 @@ void Robot_Init(void) {
     PWM_AddPins(RIGHT_IN_2);
     
     AD_Init();
-    AD_AddPins(AD_PORTV3);
+    AD_AddPins(PEAK_2KHZ_PIN);
+    AD_AddPins(PEAK_15KHZ_PIN);
 
     RC_Init();
     RC_AddPins(SERVO_PIN);
@@ -127,6 +131,14 @@ unsigned char Robot_ReadBumpers(void) {
     return bumperMask;
 }
 
+unsigned int Robot_Read2KHzPeakDetector(void) {
+    return AD_ReadADPin(PEAK_2KHZ_PIN);
+}
+
+unsigned int Robot_Read15KHzPeakDetector(void) {
+    return AD_ReadADPin(PEAK_15KHZ_PIN);
+}
+
 //#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
@@ -145,23 +157,7 @@ int main(void) {
     while(1) {
         Robot_Servo(MINPULSE);
         DELAY(1000000);
-        Robot_Servo(1200);
-        DELAY(1000000);
-        Robot_Servo(1400);
-        DELAY(1000000);
-        Robot_Servo(1600);
-        DELAY(1000000);
-        Robot_Servo(1800);
-        DELAY(1000000);
         Robot_Servo(MAXPULSE);
-        DELAY(1000000);
-        Robot_Servo(1800);
-        DELAY(1000000);
-        Robot_Servo(1600);
-        DELAY(1000000);
-        Robot_Servo(1400);
-        DELAY(1000000);
-        Robot_Servo(1200);
         DELAY(1000000);
         Robot_Servo(MINPULSE);
         DELAY(1000000);

@@ -159,69 +159,141 @@ int Check_TapeSensor(unsigned int sensorPort) {
 
 #define BUFFER_SIZE 10
 
-typedef struct CircularBuffer *Buffer;
-
 typedef struct CircularBuffer {
     int head;
     unsigned int buffer [BUFFER_SIZE];
 } CircularBuffer;
 
 
-CircularBuffer peakBuffer;
+CircularBuffer peakBuffer2KHz;
 
-void InitBuffer() {
-    //    peakBuffer = malloc(sizeof (peakBuffer));
-    //    peakBuffer->head = 0;
-    //    for (int i = 0; i < BUFFER_SIZE; i++)
-    //        peakBuffer->buffer[i] = 0;
-    peakBuffer.head = 0;
+void InitBuffer2KHz() {
+    peakBuffer2KHz.head = 0;
     for (int i = 0; i < BUFFER_SIZE; i++)
-        peakBuffer.buffer[i] = 0;
+        peakBuffer2KHz.buffer[i] = 0;
 }
 
-static int lastPeak = 0;
-
-unsigned int filterPeak(unsigned int peakReading) {
+unsigned int filterPeak2KHz(unsigned int peakReading) {
     int newHead, sum;
-    newHead = peakBuffer.head + 1;
+    newHead = peakBuffer2KHz.head + 1;
     sum = 0;
 
     if (newHead >= BUFFER_SIZE) {
         newHead = 0;
     }
 
-    peakBuffer.buffer[peakBuffer.head] = peakReading;
-    peakBuffer.head = newHead;
+    peakBuffer2KHz.buffer[peakBuffer2KHz.head] = peakReading;
+    peakBuffer2KHz.head = newHead;
 
-    //    printf("\n\t(%d)->", peakReading);
     for (int i = 0; i < BUFFER_SIZE; i++) {
-        //        printf("[%d]", peakBuffer.buffer[i]);
-        sum += peakBuffer.buffer[i];
+        sum += peakBuffer2KHz.buffer[i];
     }
 
     return (sum / BUFFER_SIZE);
 }
 
-uint8_t Check_PeakDetector(void) {
+static enum {
+    BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
+} last2KHzBeaconState;
+
+#define HYSTERSIS_BOUND 600
+
+uint8_t Check_PeakDetector2KHz(void) {
     //    printf("\nin check bumper");
     static ES_EventTyp_t lastEvent;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    int currentPeak = filterPeak(AD_ReadADPin(AD_PORTV3));
-    //    printf("\n\t%d", currentPeak);
+    int current2KHzPeak = filterPeak2KHz(Robot_Read2KHzPeakDetector());
 
-    printf("\n\t%d", currentPeak);
+    enum {
+        BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
+    } current2KHzBeaconState;
+
+    if (current2KHzPeak > HYSTERSIS_BOUND)
+        current2KHzBeaconState = BEACON_DETECTED_2KHZ;
+    else
+        current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
     //    printf("\n\t(%d)->[%d]", AD_ReadADPin(AD_PORTV3), filterPeak(AD_ReadADPin(AD_PORTV3)));
 
-    if (abs(lastPeak - currentPeak) >= 10) { //event detected
-        //        thisEvent.EventParam = currentBumperLevel;
-        //        returnVal = TRUE;
-        //        PostTopHSM(thisEvent)
-        lastPeak = currentPeak;
+    if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
+        if (current2KHzBeaconState == BEACON_DETECTED_2KHZ)
+            thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
+        else
+            thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
+        thisEvent.EventParam = current2KHzPeak;
+        returnVal = TRUE;
+        PostTopHSM(thisEvent);
     }
 
-    //    lastPeak = currentPeak;
+    last2KHzBeaconState = current2KHzBeaconState;
+
+    return (returnVal);
+}
+
+CircularBuffer peakBuffer15KHz;
+
+void InitBuffer15KHz() {
+    peakBuffer15KHz.head = 0;
+    for (int i = 0; i < BUFFER_SIZE; i++)
+        peakBuffer15KHz.buffer[i] = 0;
+}
+
+unsigned int filterPeak15KHz(unsigned int peakReading) {
+    int newHead, sum;
+    newHead = peakBuffer15KHz.head + 1;
+    sum = 0;
+
+    if (newHead >= BUFFER_SIZE) {
+        newHead = 0;
+    }
+
+    peakBuffer15KHz.buffer[peakBuffer15KHz.head] = peakReading;
+    peakBuffer15KHz.head = newHead;
+
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        sum += peakBuffer15KHz.buffer[i];
+    }
+
+    return (sum / BUFFER_SIZE);
+}
+
+static enum {
+    BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
+} last15KHzBeaconState;
+
+#define HYSTERSIS_BOUND 600
+
+uint8_t Check_PeakDetector15KHz(void) {
+    //    printf("\nin check bumper");
+    static ES_EventTyp_t lastEvent;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
+
+    enum {
+        BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
+    } current15KHzBeaconState;
+
+    if (current15KHzPeak > HYSTERSIS_BOUND)
+        current15KHzBeaconState = BEACON_DETECTED_15KHZ;
+    else
+        current15KHzBeaconState = BEACON_NOT_DETECTED_15KHZ;
+    //    printf("\n\t(%d)->[%d]", AD_ReadADPin(AD_PORTV3), filterPeak(AD_ReadADPin(AD_PORTV3)));
+
+    if (current15KHzBeaconState != last15KHzBeaconState) { //event detected
+        if (current15KHzBeaconState == BEACON_DETECTED_15KHZ)
+            thisEvent.EventType = ONE_FIVE_KHZ_BEACON_DETECTED;
+        else
+            thisEvent.EventType = ONE_FIVE_KHZ_BEACON_NOT_DETECTED;
+        thisEvent.EventParam = current15KHzPeak;
+        returnVal = TRUE;
+        PostTopHSM(thisEvent);
+    }
+
+    last2KHzBeaconState = current15KHzBeaconState;
+
     return (returnVal);
 }
 

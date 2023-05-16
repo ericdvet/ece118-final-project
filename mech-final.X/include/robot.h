@@ -21,6 +21,7 @@ void Robot_LeftMotor(int speed);
 
 void Robot_RightMotor(int speed);
 
+
 void Robot_Servo(int position);
 
 
@@ -40,6 +41,12 @@ unsigned char Robot_RearRightBumper(void);
 
 
 unsigned char Robot_ReadBumpers(void);
+
+
+unsigned int Robot_Read2KHzPeakDetector(void);
+
+
+unsigned int Robot_Read15KHzPeakDetector(void);
 
 
 #endif 

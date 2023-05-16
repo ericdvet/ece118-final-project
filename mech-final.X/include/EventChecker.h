@@ -46,8 +46,10 @@
 uint8_t Check_Bumper(void);
 int Check_TapeSensor(unsigned int sensorPin);
 int Check_PingSensor(unsigned int EWpin);
-void InitBuffer();
-uint8_t Check_PeakDetector(void);
+void InitBuffer2KHz();
+void InitBuffer15KHz();
+uint8_t Check_PeakDetector2KHz(void);
+uint8_t Check_PeakDetector15KHz(void);
 
 
 
