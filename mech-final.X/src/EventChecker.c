@@ -113,6 +113,8 @@ uint8_t Check_Bumper(void) {
     enum {
         DOWN, UP
     } currentBumperState;
+    
+//    printf("\n\t%x", currentBumperLevel);
 
     if (currentBumperLevel)
         currentBumperState = DOWN;

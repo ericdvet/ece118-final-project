@@ -13,6 +13,8 @@
 #include "RC_Servo.h"
 #include "LED.h"
 #include "IO_Ports.h"
+#include "timers.h"
+
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -32,7 +34,8 @@
 #define RIGHT_IN_2 PWM_PORTX11
 
 // Servo Port
-#define SERVO_PIN RC_PORTY06
+#define SERVO_PIN1 RC_PORTY06
+#define SERVO_PIN2 RC_PORTY07
 
 // Peak Detector Input Ports
 #define PEAK_2KHZ_PIN AD_PORTV3
@@ -40,6 +43,13 @@
 
 // Tape Detector Ports
 #define TAPE_DETECTOR_PIN AD_PORTW8
+
+// Ping Sensor Ports
+#define PING_ECHO_PIN AD_PORTV8
+#define PING_TRIGGER_PORT PORTV
+#define PING_TRIGGER_PIN PIN7
+
+#define SYS_FREQ 80000000 // Running at 200MHz
 
 /**
  * @Function Robot_Init(void)
@@ -57,7 +67,7 @@ void Robot_Init(void) {
     PWM_AddPins(LEFT_IN_2);
     PWM_AddPins(RIGHT_IN_1);
     PWM_AddPins(RIGHT_IN_2);
-    
+
     // Peak Detectors
     AD_Init();
     AD_AddPins(PEAK_2KHZ_PIN);
@@ -65,20 +75,27 @@ void Robot_Init(void) {
 
     // Servo
     RC_Init();
-    RC_AddPins(SERVO_PIN);
-    
+    RC_AddPins(SERVO_PIN1);
+    RC_AddPins(SERVO_PIN2);
+
     // LEDs on UNO32
     LED_Init();
     LED_AddBanks(LED_BANK1 | LED_BANK2 | LED_BANK3);
     LED_OffBank(LED_BANK1, 7);
     LED_OffBank(LED_BANK2, 7);
     LED_OffBank(LED_BANK3, 7);
-    
+
     // Tape Detector
     AD_AddPins(TAPE_DETECTOR_PIN);
 
     // Bumpers
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
+
+    // Ping Sensor
+    AD_AddPins(PING_ECHO_PIN);
+    IO_PortsSetPortOutputs(PING_TRIGGER_PORT, PING_TRIGGER_PIN);
+
+    TIMERS_Init();
 }
 
 /**
@@ -137,8 +154,9 @@ void Robot_RightMotor(int speed) {
  * @brief Sets the position of the servo. 
  * @note  None.
  * @author ericdvet,  */
-void Robot_Servo(int position) {
-    RC_SetPulseTime(SERVO_PIN, position);
+void Robot_Servo(int position1, int position2) {
+    RC_SetPulseTime(SERVO_PIN1, position1);
+    RC_SetPulseTime(SERVO_PIN2, position2);
 }
 
 /**
@@ -240,12 +258,31 @@ unsigned int Robot_ReadTapeSensor(void) {
     return (AD_ReadADPin(TAPE_DETECTOR_PIN) > 500);
 }
 
+void Robot_SendPing(char trigger) {
+    if (trigger == 1)
+        IO_PortsSetPortBits(PING_TRIGGER_PORT, PING_TRIGGER_PIN);
+    else
+        IO_PortsClearPortBits(PING_TRIGGER_PORT, PING_TRIGGER_PIN);
+}
+
+unsigned int Robot_ReadPingSensor(void) {
+    return (AD_ReadADPin(PING_ECHO_PIN));
+}
+
+void delay_us(unsigned int us) {
+    // Convert microseconds us into how many clock ticks it will take
+    us *= SYS_FREQ / 1000000 / 2; // Core Timer updates every 2 ticks
+
+    _CP0_SET_COUNT(0); // Set Core Timer count to 0
+
+    while (us > _CP0_GET_COUNT()); // Wait until Core Timer count reaches the number we calculated earlier
+}
 
 /*******************************************************************************
  * TEST HARNESS                                                                *
  ******************************************************************************/
 
-//#define ROBOT_TEST
+#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>
@@ -258,14 +295,20 @@ int main(void) {
     Robot_Init();
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
-    
-    while(1) {
-        printf("\n\t%d", Robot_ReadTapeSensor());
+
+
+    while (1) {
+        Robot_Servo(2000, 1000);
+        delay_us(1000000);
+        Robot_Servo(1000, 2000);
+        delay_us(1000000);
     }
-//    AD_AddPins(AD_PORTV3);
-//    while(1) {
-//        printf("\n\t%d", AD_ReadADPin(AD_PORTV3));
-//    }
+
+    //    while (Robot_ReadPingSensor() > 500)
+    //    AD_AddPins(AD_PORTV3);
+    //    while(1) {
+    //        printf("\n\t%d", AD_ReadADPin(AD_PORTV3));
+    //    }
 
     // IO library output tests
     //    while (1) {

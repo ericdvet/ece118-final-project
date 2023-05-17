@@ -50,7 +50,7 @@ void Robot_RightMotor(int speed);
  * @brief Sets the position of the servo. 
  * @note  None.
  * @author ericdvet,  */
-void Robot_Servo(int position);
+void Robot_Servo(int position1, int position2);
 
 /**
  * @Function Robot_FrontLeftBumper(void)
@@ -120,6 +120,8 @@ unsigned int Robot_Read15KHzPeakDetector(void);
  * @brief  Returns the output of the tape sensor
  * @author ericdvet, */
 unsigned int Robot_ReadTapeSensor(void);
+
+unsigned int Robot_ReadPingSensor(void);
 
 
 #endif 
