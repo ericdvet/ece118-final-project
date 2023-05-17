@@ -36,6 +36,7 @@
 #include "timers.h"
 #include <xc.h>
 #include <stdio.h>
+#include "LED.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -270,7 +271,9 @@ uint8_t Check_PeakDetector15KHz(void) {
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
+        int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
+    
+//    printf("\n\t%d", current15KHzPeak);
 
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
@@ -280,19 +283,23 @@ uint8_t Check_PeakDetector15KHz(void) {
         current15KHzBeaconState = BEACON_DETECTED_15KHZ;
     else
         current15KHzBeaconState = BEACON_NOT_DETECTED_15KHZ;
-    //    printf("\n\t(%d)->[%d]", AD_ReadADPin(AD_PORTV3), filterPeak(AD_ReadADPin(AD_PORTV3)));
+    
 
     if (current15KHzBeaconState != last15KHzBeaconState) { //event detected
-        if (current15KHzBeaconState == BEACON_DETECTED_15KHZ)
+        if (current15KHzBeaconState == BEACON_DETECTED_15KHZ) {
             thisEvent.EventType = ONE_FIVE_KHZ_BEACON_DETECTED;
-        else
+            LED_OnBank(LED_BANK3, 7);
+        }
+        else {
             thisEvent.EventType = ONE_FIVE_KHZ_BEACON_NOT_DETECTED;
+            LED_OffBank(LED_BANK3, 7);
+        }
         thisEvent.EventParam = current15KHzPeak;
         returnVal = TRUE;
         PostTopHSM(thisEvent);
     }
 
-    last2KHzBeaconState = current15KHzBeaconState;
+    last15KHzBeaconState = current15KHzBeaconState;
 
     return (returnVal);
 }

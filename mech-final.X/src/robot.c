@@ -8,20 +8,13 @@
 #include "serial.h"
 #include "AD.h"
 #include "RC_Servo.h"
+#include "LED.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 
-#define LEFT_DIR LATBbits.LATB3
-#define LEFT_DIR_INV LATBbits.LATB2
-#define RIGHT_DIR LATEbits.LATE5
-#define RIGHT_DIR_INV LATEbits.LATE6
-
-#define LEFT_DIR_TRIS _TRISB3
-#define LEFT_DIR_INV_TRIS _TRISB2
-#define RIGHT_DIR_TRIS _TRISE5
-#define RIGHT_DIR_INV_TRIS _TRISE6
+// Bumper Ports
 
 #define BUMPER_PORT PORTZ
 
@@ -30,19 +23,19 @@
 #define BUMPER_REAR_LEFT PIN5
 #define BUMPER_REAR_RIGHT PIN6
 
+// Driving Wheel Ports
+
 #define LEFT_IN_1 PWM_PORTY10
 #define LEFT_IN_2 PWM_PORTY12
 #define RIGHT_IN_1 PWM_PORTY04
 #define RIGHT_IN_2 PWM_PORTX11
 
-#define ROACH_BAT_VOLTAGE BAT_VOLTAGE
-
+// Servo Port
 #define SERVO_PIN RC_PORTY06
 
+// Peak Detector Input Ports
 #define PEAK_2KHZ_PIN AD_PORTV3
 #define PEAK_15KHZ_PIN AD_PORTV4
-
-#define NUMLEDS 12
 
 void Robot_Init(void) {
 
@@ -59,6 +52,12 @@ void Robot_Init(void) {
 
     RC_Init();
     RC_AddPins(SERVO_PIN);
+    
+    LED_Init();
+    LED_AddBanks(LED_BANK1 | LED_BANK2 | LED_BANK3);
+    LED_OffBank(LED_BANK1, 7);
+    LED_OffBank(LED_BANK2, 7);
+    LED_OffBank(LED_BANK3, 7);
 
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
 }

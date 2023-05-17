@@ -146,8 +146,6 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
 
     ES_Tattle(); // trace call stack
     
-    printf("\n\tRunning TOP HSM");
-    
     switch (CurrentState) {
         case InitPState: // If current state is initial Pseudo State
             if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
