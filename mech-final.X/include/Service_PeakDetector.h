@@ -40,40 +40,36 @@
 
  
 /**
- * @Function InitTemplateService(uint8_t Priority)
+ * @Function InitPeakDetectorService(uint8_t Priority)
  * @param Priority - internal variable to track which event queue to use
  * @return TRUE or FALSE
  * @brief This will get called by the framework at the beginning of the code
  *        execution. It will post an ES_INIT event to the appropriate event
- *        queue, which will be handled inside RunTemplateService function. Remember
- *        to rename this to something appropriate.
+ *        queue, which will be handled inside RunPeakDetectorService function.
  *        Returns TRUE if successful, FALSE otherwise
- * @author J. Edward Carryer, 2011.10.23 19:25 */
+ * @author J. Edward Carryer, ericdvet, */
 uint8_t InitPeakDetectorService(uint8_t Priority);
 
 /**
- * @Function PostTemplateService(ES_Event ThisEvent)
+ * @Function PostPeakDetectorService(ES_Event ThisEvent)
  * @param ThisEvent - the event (type and param) to be posted to queue
  * @return TRUE or FALSE
  * @brief This function is a wrapper to the queue posting function, and its name
- *        will be used inside ES_Configure to point to which queue events should
- *        be posted to. Remember to rename to something appropriate.
- *        Returns TRUE if successful, FALSE otherwise
- * @author J. Edward Carryer, 2011.10.23 19:25 */
+ * will be used inside ES_Configure to point to which queue events should
+ * be posted to. Returns TRUE if successful, FALSE otherwise
+ * @author J. Edward Carryer, ericdvet, */
 uint8_t PostPeakDetectorService(ES_Event ThisEvent);
 
 /**
- * @Function RunTemplateService(ES_Event ThisEvent)
+ * @Function RunPeakDetectorService(ES_Event ThisEvent)
  * @param ThisEvent - the event (type and param) to be responded.
  * @return Event - return event (type and param), in general should be ES_NO_EVENT
  * @brief This function is where you implement the whole of the service,
- *        as this is called any time a new event is passed to the event queue. 
- * @note Remember to rename to something appropriate.
- *       Returns ES_NO_EVENT if the event have been "consumed." 
- * @author J. Edward Carryer, 2011.10.23 19:25 */
+ * as this is called any time a new event is passed to the event queue. Returns 
+ * ES_NO_EVENT if the event have been "consumed."
+ * @author J. Edward Carryer, ericdvet, */
 ES_Event RunPeakDetectorService(ES_Event ThisEvent);
 
 
-
-#endif /* TemplateService_H */
+#endif 
 

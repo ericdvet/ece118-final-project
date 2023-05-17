@@ -1,30 +1,14 @@
-/*
- * File:   TemplateEventChecker.c
- * Author: Gabriel Hugh Elkaim
- *
- * Template file to set up typical EventCheckers for the  Events and Services
- * Framework (ES_Framework) on the Uno32 for the CMPE-118/L class. Note that
- * this file will need to be modified to fit your exact needs, and most of the
- * names will have to be changed to match your code.
- *
- * This EventCheckers file will work with both FSM's and HSM's.
- *
- * Remember that EventCheckers should only return TRUE when an event has occured,
- * and that the event is a TRANSITION between two detectable differences. They
- * should also be atomic and run as fast as possible for good results.
- *
- * This file includes a test harness that will run the event detectors listed in the
- * ES_Configure file in the project, and will conditionally compile main if the macro
- * EVENTCHECKER_TEST is defined (either in the project or in the file). This will allow
- * you to check you event detectors in their own project, and then leave them untouched
- * for your project unless you need to alter their post functions.
- *
- * Created on September 27, 2013, 8:37 AM
+/* 
+ * File:   EventChecker.c
+ * Author: Gabriel Hugh Elkaim, ericdvet
  */
 
 /*******************************************************************************
  * MODULE #INCLUDE                                                             *
  ******************************************************************************/
+
+#include <xc.h>
+#include <stdio.h>
 
 #include "ES_Configure.h"
 #include "EventChecker.h"
@@ -34,14 +18,15 @@
 #include "robot.h"
 #include "TopHSM.h"
 #include "timers.h"
-#include <xc.h>
-#include <stdio.h>
 #include "LED.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
-#define BATTERY_DISCONNECT_THRESHOLD 175
+
+#define BUFFER_SIZE 10
+
+#define HYSTERSIS_BOUND 600
 
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
@@ -59,29 +44,66 @@ static ES_Event storedEvent;
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
  ******************************************************************************/
-/* Prototypes for private functions for this EventChecker. They should be functions
-   relevant to the behavior of this particular event checker */
+
+/**
+ * @Function filterPeak2KHz(unsigned int peakReading)
+ * @param peakReading - Output of the 2 KHz Beacon Detector's Peak Detector 
+ * @return Buffered value of input
+ * @brief Returns the buffered average of the input
+ * @author ericdvet,
+ */
+unsigned int filterPeak2KHz(unsigned int peakReading);
+
+/**
+ * @Function filterPeak15KHz(unsigned int peakReading)
+ * @param peakReading - Output of the 1.5 KHz Beacon Detector's Peak Detector 
+ * @return Buffered value of input
+ * @brief Returns the buffered average of the input
+ * @author ericdvet,
+ */
+unsigned int filterPeak15KHz(unsigned int peakReading);
 
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                    *
- ******************************************************************************/
-
-/* Any private module level variable that you might need for keeping track of
-   events would be placed here. Private variables should be STATIC so that they
-   are limited in scope to this module. */
-
-/*******************************************************************************
- * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
 
 static enum {
     DOWN, UP
 } lastBumperState;
 
-static unsigned char lastBumperLevel = 0;
+static enum {
+    TAPE, NO_TAPE
+} lastTapeState;
 
+typedef struct CircularBuffer {
+    int head;
+    unsigned int buffer [BUFFER_SIZE];
+} CircularBuffer;
+
+CircularBuffer peakBuffer2KHz;
+CircularBuffer peakBuffer15KHz;
+
+static enum {
+    BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
+} last2KHzBeaconState;
+
+static enum {
+    BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
+} last15KHzBeaconState;
+
+/*******************************************************************************
+ * PUBLIC FUNCTIONS                                                            *
+ ******************************************************************************/
+
+/**
+ * @Function Check_Bumper(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Post an event of either BUMPER_DOWN or BUMPER_UP if a bumper is down
+ *        or up. Returns TRUE if there was an event, FALSE otherwise.
+ * @author ericdvet,
+ */
 uint8_t Check_Bumper(void) {
-    //    printf("\nin check bumper");
     static ES_EventTyp_t lastEvent = BUMPER_UP;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
@@ -97,20 +119,15 @@ uint8_t Check_Bumper(void) {
     else
         currentBumperState = UP;
 
-    //    printf("\n\t%d", currentBumperLevel);
-
     if (currentBumperState != lastBumperState) { //event detected
         if (currentBumperState == DOWN) {
-            //            printf("\n\tdown");
             thisEvent.EventType = BUMPER_DOWN;
         }
         if (currentBumperState == UP) {
-            //            printf("\n\tup");
             thisEvent.EventType = BUMPER_UP;
         }
         thisEvent.EventParam = currentBumperLevel;
         returnVal = TRUE;
-        //        printf("\n\tEvent %d with param %d", thisEvent.EventType, thisEvent.EventParam);
         PostTopHSM(thisEvent);
     }
 
@@ -118,10 +135,14 @@ uint8_t Check_Bumper(void) {
     return (returnVal);
 }
 
-static enum {
-    TAPE, NO_TAPE
-} lastTapeState;
-
+/**
+ * @Function Check_TapeSensor(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Post an event of either TAPE_DETECTED or TAPE_NOT_DETECTED if a tape
+ * is detected or not. Returns TRUE if there was an event, FALSE otherwise.
+ * @author ericdvet,
+ */
 uint8_t Check_TapeSensor(void) {
     static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
     ES_EventTyp_t curEvent;
@@ -153,22 +174,66 @@ uint8_t Check_TapeSensor(void) {
     return (returnVal);
 }
 
-#define BUFFER_SIZE 10
+/**
+ * @Function Check_PeakDetector2KHz(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Post an event of either TWO_KHZ_BEACON_DETECTED or 
+ * TWO_KHZ_BEACON_NOT_DETECTED if a 2KHz beacon is detected or not. Returns TRUE
+ * if there was an event, FALSE otherwise.
+ * @author ericdvet,
+ */
+uint8_t Check_PeakDetector2KHz(void) {
+    static ES_EventTyp_t lastEvent;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    int current2KHzPeak = filterPeak2KHz(Robot_Read2KHzPeakDetector());
 
-typedef struct CircularBuffer {
-    int head;
-    unsigned int buffer [BUFFER_SIZE];
-} CircularBuffer;
+    enum {
+        BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
+    } current2KHzBeaconState;
 
+    if (current2KHzPeak > HYSTERSIS_BOUND)
+        current2KHzBeaconState = BEACON_DETECTED_2KHZ;
+    else
+        current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
 
-CircularBuffer peakBuffer2KHz;
+    if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
+        if (current2KHzBeaconState == BEACON_DETECTED_2KHZ)
+            thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
+        else
+            thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
+        thisEvent.EventParam = current2KHzPeak;
+        returnVal = TRUE;
+        PostTopHSM(thisEvent);
+    }
 
-void InitBuffer2KHz() {
+    last2KHzBeaconState = current2KHzBeaconState;
+
+    return (returnVal);
+}
+
+/**
+ * @Function InitBuffer2KHz(void)
+ * @param None 
+ * @return None
+ * @brief Initializes the 2 KHz circular buffer
+ * @author ericdvet,
+ */
+void InitBuffer2KHz(void) {
     peakBuffer2KHz.head = 0;
     for (int i = 0; i < BUFFER_SIZE; i++)
         peakBuffer2KHz.buffer[i] = 0;
 }
 
+/**
+ * @Function filterPeak2KHz(unsigned int peakReading)
+ * @param peakReading - Output of the 2 KHz Beacon Detector's Peak Detector 
+ * @return Buffered value of input
+ * @brief Returns the buffered average of the input
+ * @author ericdvet,
+ */
 unsigned int filterPeak2KHz(unsigned int peakReading) {
     int newHead, sum;
     newHead = peakBuffer2KHz.head + 1;
@@ -188,86 +253,22 @@ unsigned int filterPeak2KHz(unsigned int peakReading) {
     return (sum / BUFFER_SIZE);
 }
 
-static enum {
-    BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
-} last2KHzBeaconState;
-
-#define HYSTERSIS_BOUND 600
-
-uint8_t Check_PeakDetector2KHz(void) {
-    //    printf("\nin check bumper");
-    static ES_EventTyp_t lastEvent;
-    ES_EventTyp_t curEvent;
-    ES_Event thisEvent;
-    uint8_t returnVal = FALSE;
-    int current2KHzPeak = filterPeak2KHz(Robot_Read2KHzPeakDetector());
-
-    enum {
-        BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
-    } current2KHzBeaconState;
-
-    if (current2KHzPeak > HYSTERSIS_BOUND)
-        current2KHzBeaconState = BEACON_DETECTED_2KHZ;
-    else
-        current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
-    //    printf("\n\t(%d)->[%d]", AD_ReadADPin(AD_PORTV3), filterPeak(AD_ReadADPin(AD_PORTV3)));
-
-    if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
-        if (current2KHzBeaconState == BEACON_DETECTED_2KHZ)
-            thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
-        else
-            thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
-        thisEvent.EventParam = current2KHzPeak;
-        returnVal = TRUE;
-        PostTopHSM(thisEvent);
-    }
-
-    last2KHzBeaconState = current2KHzBeaconState;
-
-    return (returnVal);
-}
-
-CircularBuffer peakBuffer15KHz;
-
-void InitBuffer15KHz() {
-    peakBuffer15KHz.head = 0;
-    for (int i = 0; i < BUFFER_SIZE; i++)
-        peakBuffer15KHz.buffer[i] = 0;
-}
-
-unsigned int filterPeak15KHz(unsigned int peakReading) {
-    int newHead, sum;
-    newHead = peakBuffer15KHz.head + 1;
-    sum = 0;
-
-    if (newHead >= BUFFER_SIZE) {
-        newHead = 0;
-    }
-
-    peakBuffer15KHz.buffer[peakBuffer15KHz.head] = peakReading;
-    peakBuffer15KHz.head = newHead;
-
-    for (int i = 0; i < BUFFER_SIZE; i++) {
-        sum += peakBuffer15KHz.buffer[i];
-    }
-
-    return (sum / BUFFER_SIZE);
-}
-
-static enum {
-    BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
-} last15KHzBeaconState;
-
+/**
+ * @Function Check_PeakDetector15KHz(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Post an event of either TWO_KHZ_BEACON_DETECTED or 
+ * TWO_KHZ_BEACON_NOT_DETECTED if a 1.5KHz beacon is detected or not. Returns 
+ * TRUE if there was an event, FALSE otherwise.
+ * @author ericdvet,
+ */
 uint8_t Check_PeakDetector15KHz(void) {
-    //    printf("\nin check bumper");
     static ES_EventTyp_t lastEvent;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
         int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
     
-//    printf("\n\t%d", current15KHzPeak);
-
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
     } current15KHzBeaconState;
@@ -295,6 +296,45 @@ uint8_t Check_PeakDetector15KHz(void) {
     last15KHzBeaconState = current15KHzBeaconState;
 
     return (returnVal);
+}
+
+/**
+ * @Function InitBuffer15KHz(void)
+ * @param None 
+ * @return None
+ * @brief Initializes the 1.5 KHz circular buffer
+ * @author ericdvet,
+ */
+void InitBuffer15KHz(void) {
+    peakBuffer15KHz.head = 0;
+    for (int i = 0; i < BUFFER_SIZE; i++)
+        peakBuffer15KHz.buffer[i] = 0;
+}
+
+/**
+ * @Function filterPeak15KHz(unsigned int peakReading)
+ * @param peakReading - Output of the 1.5 KHz Beacon Detector's Peak Detector 
+ * @return Buffered value of input
+ * @brief Returns the buffered average of the input
+ * @author ericdvet,
+ */
+unsigned int filterPeak15KHz(unsigned int peakReading) {
+    int newHead, sum;
+    newHead = peakBuffer15KHz.head + 1;
+    sum = 0;
+
+    if (newHead >= BUFFER_SIZE) {
+        newHead = 0;
+    }
+
+    peakBuffer15KHz.buffer[peakBuffer15KHz.head] = peakReading;
+    peakBuffer15KHz.head = newHead;
+
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        sum += peakBuffer15KHz.buffer[i];
+    }
+
+    return (sum / BUFFER_SIZE);
 }
 
 //#define TIMER1_US_PER_TICK 25
