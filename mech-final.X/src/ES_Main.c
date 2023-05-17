@@ -6,7 +6,8 @@
 #include "Robot.h"
 #include "AD.h"
 
-
+#define REAL_MAIN
+#ifdef REAL_MAIN
 void main(void)
 {
     ES_Return_t ErrorType;
@@ -43,6 +44,7 @@ void main(void)
         ;
 
 };
+#endif
 
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/

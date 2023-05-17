@@ -122,21 +122,18 @@ static enum {
     TAPE, NO_TAPE
 } lastTapeState;
 
-#define HIGH_THRESHOLD 10
-#define LOW_THRESHOLD 1
-
-int Check_TapeSensor(unsigned int sensorPort) {
+uint8_t Check_TapeSensor(void) {
     static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    unsigned int currentTapeReading = AD_ReadADPin(sensorPort);
+    int currentTapeReading = Robot_ReadTapeSensor();
 
     enum {
         TAPE, NO_TAPE
     } currentTapeState;
 
-    if (currentTapeReading > HIGH_THRESHOLD)
+    if (currentTapeReading)
         currentTapeState = TAPE;
     else
         currentTapeState = NO_TAPE;
@@ -146,14 +143,12 @@ int Check_TapeSensor(unsigned int sensorPort) {
             thisEvent.EventType = TAPE_DETECTED;
         if (currentTapeState == NO_TAPE)
             thisEvent.EventType = TAPE_NOT_DETECTED;
-        thisEvent.EventParam = (uint16_t) currentTapeReading;
+        thisEvent.EventParam = currentTapeReading;
         returnVal = TRUE;
-#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
         PostTopHSM(thisEvent);
-#else
-        SaveEvent(ThisEvent);
-#endif   
     }
+    
+    lastTapeState = currentTapeState;
 
     return (returnVal);
 }
@@ -262,8 +257,6 @@ unsigned int filterPeak15KHz(unsigned int peakReading) {
 static enum {
     BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
 } last15KHzBeaconState;
-
-#define HYSTERSIS_BOUND 600
 
 uint8_t Check_PeakDetector15KHz(void) {
     //    printf("\nin check bumper");

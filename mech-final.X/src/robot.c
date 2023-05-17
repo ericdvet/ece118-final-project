@@ -37,8 +37,12 @@
 #define PEAK_2KHZ_PIN AD_PORTV3
 #define PEAK_15KHZ_PIN AD_PORTV4
 
+// Tape Detector 
+#define TAPE_DETECTOR_PIN AD_PORTW8
+
 void Robot_Init(void) {
 
+    // Driving Motors
     PWM_Init();
     PWM_SetFrequency(1000);
     PWM_AddPins(LEFT_IN_1);
@@ -46,19 +50,26 @@ void Robot_Init(void) {
     PWM_AddPins(RIGHT_IN_1);
     PWM_AddPins(RIGHT_IN_2);
     
+    // Peak Detectors
     AD_Init();
     AD_AddPins(PEAK_2KHZ_PIN);
     AD_AddPins(PEAK_15KHZ_PIN);
 
+    // Servo
     RC_Init();
     RC_AddPins(SERVO_PIN);
     
+    // LEDs on UNO32
     LED_Init();
     LED_AddBanks(LED_BANK1 | LED_BANK2 | LED_BANK3);
     LED_OffBank(LED_BANK1, 7);
     LED_OffBank(LED_BANK2, 7);
     LED_OffBank(LED_BANK3, 7);
+    
+    // Tape Detector
+    AD_AddPins(TAPE_DETECTOR_PIN);
 
+    // Bumpers
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
 }
 
@@ -138,6 +149,10 @@ unsigned int Robot_Read15KHzPeakDetector(void) {
     return AD_ReadADPin(PEAK_15KHZ_PIN);
 }
 
+unsigned int Robot_ReadTapeSensor(void) {
+    return (AD_ReadADPin(TAPE_DETECTOR_PIN) > 500);
+}
+
 //#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
@@ -154,12 +169,7 @@ int main(void) {
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
     
     while(1) {
-        Robot_Servo(MINPULSE);
-        DELAY(1000000);
-        Robot_Servo(MAXPULSE);
-        DELAY(1000000);
-        Robot_Servo(MINPULSE);
-        DELAY(1000000);
+        printf("\n\t%d", Robot_ReadTapeSensor());
     }
 //    AD_AddPins(AD_PORTV3);
 //    while(1) {

@@ -32,7 +32,6 @@
  ******************************************************************************/
 
 #define DEBOUNCE_TICKS 200
-#define TAPE_SENSOR_PIN 2
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
@@ -72,7 +71,7 @@ uint8_t InitTapeSensorService(uint8_t Priority) {
     // that needs to occur.
 
     // post the initial transition event
-    ES_Timer_InitTimer(BUTTON_DEBOUNCE_TIMER, DEBOUNCE_TICKS);
+    ES_Timer_InitTimer(TAPE_SENSOR_TIMER, DEBOUNCE_TICKS);
     ThisEvent.EventType = ES_INIT;
     if (ES_PostToService(MyPriority, ThisEvent) == TRUE) {
         return TRUE;
@@ -128,8 +127,8 @@ ES_Event RunTapeSensorService(ES_Event ThisEvent) {
 
 
         case ES_TIMEOUT:
-            ES_Timer_InitTimer(BUTTON_DEBOUNCE_TIMER, DEBOUNCE_TICKS);
-            Check_TapeSensor(TAPE_SENSOR_PIN);
+            ES_Timer_InitTimer(TAPE_SENSOR_TIMER, DEBOUNCE_TICKS);
+            Check_TapeSensor();
             
 //            if (curEvent != lastEvent) { // check for change from last time
 //                ReturnEvent.EventType = curEvent;

@@ -48,6 +48,8 @@ unsigned int Robot_Read2KHzPeakDetector(void);
 
 unsigned int Robot_Read15KHzPeakDetector(void);
 
+unsigned int Robot_ReadTapeSensor(void);
+
 
 #endif 
 

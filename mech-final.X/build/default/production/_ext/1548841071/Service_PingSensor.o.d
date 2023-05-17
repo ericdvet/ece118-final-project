@@ -19,6 +19,7 @@ build/default/production/_ext/1548841071/Service_PingSensor.o: \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_Bumper.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/TopHSM.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_TapeSensor.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_TattleTale.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_PingSensor.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/EventChecker.h \
@@ -64,6 +65,8 @@ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/TopHSM.h:
+
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Service_TapeSensor.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ES_TattleTale.h:
 
