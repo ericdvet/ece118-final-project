@@ -200,12 +200,18 @@ uint8_t Check_PeakDetector2KHz(void) {
         current2KHzBeaconState = BEACON_DETECTED_2KHZ;
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
+    
+//    printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
-        if (current2KHzBeaconState == BEACON_DETECTED_2KHZ)
+        if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
             thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
-        else
+            LED_OnBank(LED_BANK2, 7);
+        }
+        else {
             thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
+            LED_OffBank(LED_BANK2, 7);
+        }
         thisEvent.EventParam = current2KHzPeak;
         returnVal = TRUE;
         PostTopHSM(thisEvent);
