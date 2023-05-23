@@ -32,18 +32,23 @@
 #include "BOARD.h"
 #include "TopHSM.h"
 #include "Zone23SubHSM.h"
+#include "robot.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFirstState,
+    SubFindGoalState,
+    SubGoalFoundState,
+    Zone23To1State,
 } Zone23SubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubFirstState",
+    "SubFindGoalState",
+    "SubGoalFoundState",
+    "Zone23To1State",
 };
 
 
@@ -119,18 +124,69 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = SubFirstState;
+                nextState = SubFindGoalState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case SubFirstState: // in the first state, replace this with correct names
+        case SubFindGoalState: // in the first state, replace this with correct names
+
+            Robot_LeftMotor(400);
+            Robot_RightMotor(-400);
+
             switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    nextState = SubGoalFoundState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
+            break;
+
+        case SubGoalFoundState:
+
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
+
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    nextState = SubFindGoalState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case TAPE_DETECTED:
+                    switch (ThisEvent.EventParam) {
+                        case 8: // Rear Right
+                            Robot_LeftMotor(0);
+                            Robot_RightMotor(0);
+                            nextState = Zone23To1State;
+                            makeTransition = TRUE;
+                            ThisEvent.EventType = ES_NO_EVENT;
+                            break;
+                        case 4: // Rear Left
+                            Robot_LeftMotor(0);
+                            Robot_RightMotor(0);
+                            nextState = Zone23To1State;
+                            makeTransition = TRUE;
+                            ThisEvent.EventType = ES_NO_EVENT;
+                            break;
+                        case 2: // Front Right
+                            break;
+                        case 1: // Front Left
+                            break;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+
+        case Zone23To1State:
+            ThisEvent.EventType = ZONE_23_TO_1;
             break;
 
         default: // all unhandled states fall into here

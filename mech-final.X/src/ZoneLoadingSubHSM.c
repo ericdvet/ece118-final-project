@@ -41,12 +41,14 @@ typedef enum {
     InitPSubState,
     SubFindGoalState,
     SubGoalFoundState,
+    ZoneLoadingTo23State,
 } ZoneLoadingSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
     "SubFindGoalState",
     "SubGoalFoundState",
+    "ZoneLoadingTo23State",
 };
 
 
@@ -161,16 +163,16 @@ ES_Event RunZoneLoadingSubHSM(ES_Event ThisEvent) {
                         case 8: // Rear Right
                             Robot_LeftMotor(0);
                             Robot_RightMotor(0);
-                            nextState = SubGoalFoundState;
+                            nextState = ZoneLoadingTo23State;
                             makeTransition = TRUE;
-                            ThisEvent.EventType = LOAD_TO_23;
+                            ThisEvent.EventType = ES_NO_EVENT;
                             break;
                         case 4: // Rear Left
                             Robot_LeftMotor(0);
                             Robot_RightMotor(0);
-                            nextState = SubGoalFoundState;
+                            nextState = ZoneLoadingTo23State;
                             makeTransition = TRUE;
-                            ThisEvent.EventType = LOAD_TO_23;
+                            ThisEvent.EventType = ES_NO_EVENT;
                             break;
                         case 2: // Front Right
                             break;
@@ -182,6 +184,10 @@ ES_Event RunZoneLoadingSubHSM(ES_Event ThisEvent) {
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
+
+        case ZoneLoadingTo23State:
+            ThisEvent.EventType = LOAD_TO_23;
+            break;
 
         default: // all unhandled states fall into here
             break;

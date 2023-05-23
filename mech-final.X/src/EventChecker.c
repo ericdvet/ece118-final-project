@@ -71,9 +71,7 @@ static enum {
     DOWN, UP
 } lastBumperState;
 
-static enum {
-    TAPE, NO_TAPE
-} lastTapeState;
+static int lastTapeReading;
 
 typedef struct CircularBuffer {
     int head;
@@ -160,8 +158,10 @@ uint8_t Check_TapeSensor(void) {
         currentTapeState = TAPE;
     else
         currentTapeState = NO_TAPE;
+    
+//    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
 
-    if (currentTapeState != lastTapeState) { //event detected
+    if (currentTapeReading != lastTapeReading) { //event detected
         if (currentTapeState == TAPE)
             thisEvent.EventType = TAPE_DETECTED;
         if (currentTapeState == NO_TAPE)
@@ -171,7 +171,7 @@ uint8_t Check_TapeSensor(void) {
         PostTopHSM(thisEvent);
     }
     
-    lastTapeState = currentTapeState;
+    lastTapeReading = currentTapeReading;
 
     return (returnVal);
 }

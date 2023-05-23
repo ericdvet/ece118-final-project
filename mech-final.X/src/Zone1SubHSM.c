@@ -32,18 +32,23 @@
 #include "BOARD.h"
 #include "TopHSM.h"
 #include "Zone1SubHSM.h"
+#include "timers.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFirstState,
+    SubFindGoalState,
+    SubGoalFoundState,
+    Zone23To1State,
 } Zone1SubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubFirstState",
+    "SubFindGoalState",
+    "SubGoalFoundState",
+    "Zone23To1State",
 };
 
 
@@ -119,13 +124,13 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = SubFirstState;
+                nextState = SubFindGoalState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case SubFirstState: // in the first state, replace this with correct names
+        case SubFindGoalState: // in the first state, replace this with correct names
             switch (ThisEvent.EventType) {
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level

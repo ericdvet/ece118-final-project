@@ -32,20 +32,21 @@
 #include "BOARD.h"
 #include "TopHSM.h"
 #include "LoadingSubHSM.h"
+#include "timers.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
+    PreGameSubState,
     EmptySubState,
-    FullSubState,
 } LoadingSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
+    "PreGameSubState",
     "EmptySubState",
-    "FullSubState",
 };
 
 
@@ -64,7 +65,7 @@ static const char *StateNames[] = {
 
 static LoadingSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
-
+static int freeRunningTimer;
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
@@ -121,16 +122,36 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = EmptySubState;
+                nextState = PreGameSubState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
+        case PreGameSubState: // in the first state, replace this with correct names
+            switch (ThisEvent.EventType) {
+                case START_SWITCH:
+                    nextState = EmptySubState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    
+                    freeRunningTimer = TIMERS_GetTime();
+                    break;
+                    
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
         case EmptySubState: // in the first state, replace this with correct names
+            
+            if (TIMERS_GetTime() - freeRunningTimer >= 100) 
+                ThisEvent.EventType = REFILLED;
+            
             switch (ThisEvent.EventType) {
                 case REFILLED:
-                    nextState = FullSubState;
+                    nextState = EmptySubState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = REFILLED;
                 case ES_NO_EVENT:

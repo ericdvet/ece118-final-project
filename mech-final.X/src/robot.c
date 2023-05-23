@@ -265,7 +265,7 @@ unsigned int Robot_Read15KHzPeakDetector(void) {
  * @brief  Returns the output of the tape sensor
  * @author ericdvet, */
 unsigned int Robot_ReadTapeSensor(void) {
-    return (8 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_RIGHT) > 820) << 4)) | (4 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_LEFT) > 820) << 2)) | 
+    return (8 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_RIGHT) > 820) << 3)) | (4 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_LEFT) > 820) << 2)) | 
             (2 & ((AD_ReadADPin(TAPE_DETECTOR_FRONT_RIGHT) > 820) << 1)) | (1 & (AD_ReadADPin(TAPE_DETECTOR_FRONT_LEFT) > 820));
 }
 

@@ -64,6 +64,7 @@ typedef enum {
     SHOTS_FIRED,
     RETURNED,
     REFILLED,
+    START_SWITCH,
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
 
@@ -83,7 +84,7 @@ static const char *EventNames[] = {
     "BUMPER_DOWN",
     "BUMPER_UP",
     "TAPE_DETECTED",
-    "TAPE_NOT_DETECTED",
+    "TAPE_NOT_DETECTED", // TAPE_LOST 
     "SENSOR_READING",
     "TWO_KHZ_BEACON_DETECTED",
     "TWO_KHZ_BEACON_NOT_DETECTED",
@@ -97,6 +98,7 @@ static const char *EventNames[] = {
     "SHOTS_FIRED",
     "RETURNED",
     "REFILLED",
+    "START_SWITCH",
     "NUMBEROFEVENTS",
 };
 
