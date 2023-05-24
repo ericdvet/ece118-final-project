@@ -32,8 +32,11 @@
 // Driving Wheel Ports
 #define LEFT_IN_1 PWM_PORTY10
 #define LEFT_IN_2 PWM_PORTY12
-#define RIGHT_IN_1 PWM_PORTY04
-#define RIGHT_IN_2 PWM_PORTX11
+#define RIGHT_IN_1 PWM_PORTX11
+#define RIGHT_IN_2 PWM_PORTY04
+
+// Fly-wheel Pins
+#define FLYWHEEL_PIN PWM_PORTZ06
 
 // Servo Port
 //#define SERVO_PIN1 RC_PORTY06
@@ -154,6 +157,10 @@ void Robot_RightMotor(int speed) {
 
     PWM_SetDutyCycle(RIGHT_IN_1, in2);
     PWM_SetDutyCycle(RIGHT_IN_2, in1);
+}
+
+void Robot_FlyWheel(int speed) {
+    PWM_SetDutyCycle(FLYWHEEL_PIN, speed);
 }
 
 /**
@@ -293,7 +300,7 @@ void delay_us(unsigned int us) {
  * TEST HARNESS                                                                *
  ******************************************************************************/
 
-//#define ROBOT_TEST
+#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>
@@ -307,8 +314,11 @@ int main(void) {
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
 
-
-    while(1);
+//    AD_Init();
+//    AD_AddPins(PEAK_15KHZ_PIN);
+//    while(1) {
+//        printf("\n\t%d\t\n", AD_ReadADPin(PEAK_15KHZ_PIN));
+//    }
     
 //    while (1) {
 //        Robot_Servo(3200, 1000);
@@ -334,26 +344,37 @@ int main(void) {
 
     while (1) {
         Robot_RightMotor(1000);
+        Robot_LeftMotor(1000);
         DELAY(1000000);
         Robot_RightMotor(800);
+        Robot_LeftMotor(800);
         DELAY(1000000);
         Robot_RightMotor(600);
+        Robot_LeftMotor(600);
         DELAY(1000000);
         Robot_RightMotor(400);
+        Robot_LeftMotor(400);
         DELAY(1000000);
         Robot_RightMotor(200);
+        Robot_LeftMotor(200);
         DELAY(1000000);
         Robot_RightMotor(0);
+        Robot_LeftMotor(0);
         DELAY(1000000);
         Robot_RightMotor(-200);
+        Robot_LeftMotor(-200);
         DELAY(1000000);
         Robot_RightMotor(-400);
+        Robot_LeftMotor(-400);
         DELAY(1000000);
         Robot_RightMotor(-600);
+        Robot_LeftMotor(-600);
         DELAY(1000000);
         Robot_RightMotor(-800);
+        Robot_LeftMotor(-800);
         DELAY(1000000);
         Robot_RightMotor(-1000);
+        Robot_LeftMotor(-1000);
         DELAY(1000000);
     }
 

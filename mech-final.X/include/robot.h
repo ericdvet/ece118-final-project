@@ -121,6 +121,8 @@ unsigned int Robot_Read15KHzPeakDetector(void);
  * @author ericdvet, */
 unsigned int Robot_ReadTapeSensor(void);
 
+void Robot_SendPing(char trigger);
+
 unsigned int Robot_ReadPingSensor(void);
 
 
