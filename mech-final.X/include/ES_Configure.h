@@ -121,7 +121,7 @@ static const char *EventNames[] = {
 #define TIMER0_RESP_FUNC PostBumperService
 #define TIMER1_RESP_FUNC PostPeakDetectorService
 #define TIMER2_RESP_FUNC PostTapeSensorService
-#define TIMER3_RESP_FUNC TIMER_UNUSED
+#define TIMER3_RESP_FUNC PostTopHSM
 #define TIMER4_RESP_FUNC TIMER_UNUSED
 #define TIMER5_RESP_FUNC TIMER_UNUSED
 #define TIMER6_RESP_FUNC TIMER_UNUSED
@@ -145,6 +145,7 @@ static const char *EventNames[] = {
 #define BUTTON_DEBOUNCE_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 #define PEAK_DETECTOR_TIMER 1
 #define TAPE_SENSOR_TIMER 2
+#define START_TIMER 3
 
 
 

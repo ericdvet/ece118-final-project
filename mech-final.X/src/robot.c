@@ -300,7 +300,7 @@ void delay_us(unsigned int us) {
  * TEST HARNESS                                                                *
  ******************************************************************************/
 
-#define ROBOT_TEST
+//#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>

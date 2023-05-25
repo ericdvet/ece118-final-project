@@ -33,6 +33,7 @@
 #include "TopHSM.h"
 #include "Zone1SubHSM.h"
 #include "timers.h"
+#include "robot.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -41,14 +42,20 @@ typedef enum {
     InitPSubState,
     SubFindGoalState,
     SubGoalFoundState,
-    Zone23To1State,
+    SubAiming,
+    SubShooting,
+    SubReturn,
+    SubZone1To23,
 } Zone1SubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
     "SubFindGoalState",
     "SubGoalFoundState",
-    "Zone23To1State",
+    "SubAiming",
+    "SubShooting",
+    "SubReturn",
+    "SubZone1To23",
 };
 
 
@@ -131,7 +138,118 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
             break;
 
         case SubFindGoalState: // in the first state, replace this with correct names
+
+            Robot_LeftMotor(250);
+            Robot_RightMotor(-250);
+
             switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    ES_Timer_InitTimer(START_TIMER, 1000);
+                    nextState = SubGoalFoundState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubGoalFoundState:
+
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
+
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = SubAiming;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubAiming:
+
+            Robot_LeftMotor(0);
+            Robot_RightMotor(0);
+            //Robot_Flywheel(200);
+
+            switch (ThisEvent.EventType) {
+                case ONE_FIVE_KHZ_BEACON_DETECTED:
+                    nextState = SubShooting;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    ES_Timer_InitTimer(START_TIMER, 2000);
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubShooting:
+
+            // Robot_LetBallsGo();
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = SubReturn;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubReturn:
+
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(-500);
+            
+            switch (ThisEvent.EventType) {
+                case TAPE_DETECTED:
+                    switch (ThisEvent.EventParam) {
+                        case 8: // Rear Right
+                            break;
+                        case 4: // Rear Left
+                            break;
+                        case 2: // Front Right
+                            nextState = SubZone1To23;
+                            makeTransition = TRUE;
+                            ThisEvent.EventType = ES_NO_EVENT;
+                            break;
+                        case 1: // Front Left
+                            nextState = SubZone1To23;
+                            makeTransition = TRUE;
+                            ThisEvent.EventType = ES_NO_EVENT;
+                            break;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubZone1To23:
+
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = SubReturn;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;

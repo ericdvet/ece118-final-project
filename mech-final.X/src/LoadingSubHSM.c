@@ -33,6 +33,7 @@
 #include "TopHSM.h"
 #include "LoadingSubHSM.h"
 #include "timers.h"
+#include <stdio.h>
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -120,9 +121,10 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                 // this is where you would put any actions associated with the
                 // transition from the initial pseudo-state into the actual
                 // initial state
+                ES_Timer_InitTimer(START_TIMER, 3000);
 
                 // now put the machine into the actual initial state
-                nextState = PreGameSubState;
+                nextState = EmptySubState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
@@ -134,10 +136,8 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                     nextState = EmptySubState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
-                    
-                    freeRunningTimer = TIMERS_GetTime();
                     break;
-                    
+
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
@@ -145,15 +145,13 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
             break;
 
         case EmptySubState: // in the first state, replace this with correct names
-            
-            if (TIMERS_GetTime() - freeRunningTimer >= 100) 
-                ThisEvent.EventType = REFILLED;
-            
             switch (ThisEvent.EventType) {
-                case REFILLED:
-                    nextState = EmptySubState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = REFILLED;
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = EmptySubState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = LOADED;
+                    }
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;

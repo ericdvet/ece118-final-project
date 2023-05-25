@@ -132,8 +132,8 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
 
         case SubFindGoalState: // in the first state, replace this with correct names
 
-            Robot_LeftMotor(400);
-            Robot_RightMotor(-400);
+            Robot_LeftMotor(250);
+            Robot_RightMotor(-250);
 
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
@@ -184,6 +184,7 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
+            break;
 
         case Zone23To1State:
             ThisEvent.EventType = ZONE_23_TO_1;
