@@ -79,6 +79,7 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PingSensor.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_TapeSensor.c</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/EventChecker.c</itemPath>
       </logicalFolder>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/AD.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/BOARD.c</itemPath>
@@ -87,10 +88,9 @@
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/pwm.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/serial.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/robot.c</itemPath>
-      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/EventChecker.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/timers.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LED.c</itemPath>
-      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/ping.c</itemPath>
+      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ping.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -284,10 +284,38 @@
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/RC_Servo.h"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RC_Servo.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c"
             ex="false"
