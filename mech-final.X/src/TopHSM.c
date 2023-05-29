@@ -124,7 +124,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
     TopHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
-    
+
     switch (CurrentState) {
         case InitPState: // If current state is initial Pseudo State
             if (ThisEvent.EventType == ES_INIT)// only respond to ES_Init
@@ -174,12 +174,6 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
         case Zone23State:
             ThisEvent = RunZone23SubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
-                case ZONE_23_TO_LOAD:
-                    InitZoneLoadingSubHSM();
-                    nextState = ZoneLoadingState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
                 case ZONE_23_TO_1:
                     InitZone1SubHSM();
                     nextState = Zone1State;

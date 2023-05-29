@@ -47,9 +47,6 @@ uint8_t Check_Bumper(void);
  */
 uint8_t Check_TapeSensor(void);
 
-
-uint8_t Check_PingSensor(unsigned int EWpin);
-
 /**
  * @Function InitBuffer2KHz(void)
  * @param None 
@@ -89,6 +86,8 @@ uint8_t Check_PeakDetector2KHz(void);
  * @author ericdvet,
  */
 uint8_t Check_PeakDetector15KHz(void);
+
+uint8_t Check_PingSensor(void);
 
 
 #endif	

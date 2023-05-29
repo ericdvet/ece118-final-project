@@ -19,6 +19,7 @@
 #include "TopHSM.h"
 #include "timers.h"
 #include "LED.h"
+#include "ping.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -26,7 +27,8 @@
 
 #define BUFFER_SIZE 10
 
-#define HYSTERSIS_BOUND 600
+#define HYSTERSIS_BOUND_TWO 600
+#define HYSTERSIS_BOUND_ONE_FIVE 850
 
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
@@ -67,9 +69,7 @@ unsigned int filterPeak15KHz(unsigned int peakReading);
  * PRIVATE MODULE VARIABLES                                                    *
  ******************************************************************************/
 
-static enum {
-    DOWN, UP
-} lastBumperState;
+static int lastBumperLevel;
 
 static int lastTapeReading;
 
@@ -111,15 +111,13 @@ uint8_t Check_Bumper(void) {
     enum {
         DOWN, UP
     } currentBumperState;
-    
-//    printf("\n\t%x", currentBumperLevel);
 
     if (currentBumperLevel)
         currentBumperState = DOWN;
     else
         currentBumperState = UP;
 
-    if (currentBumperState != lastBumperState) { //event detected
+    if (lastBumperLevel != currentBumperLevel) { //event detected
         if (currentBumperState == DOWN) {
             thisEvent.EventType = BUMPER_DOWN;
         }
@@ -131,7 +129,7 @@ uint8_t Check_Bumper(void) {
         PostTopHSM(thisEvent);
     }
 
-    lastBumperState = currentBumperState;
+    lastBumperLevel = currentBumperLevel;
     return (returnVal);
 }
 
@@ -149,6 +147,7 @@ uint8_t Check_TapeSensor(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int currentTapeReading = Robot_ReadTapeSensor();
+//    printf("\n\t%d", currentTapeReading);
 
     enum {
         TAPE, NO_TAPE
@@ -158,8 +157,8 @@ uint8_t Check_TapeSensor(void) {
         currentTapeState = TAPE;
     else
         currentTapeState = NO_TAPE;
-    
-//    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
+
+    //    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
 
     if (currentTapeReading != lastTapeReading) { //event detected
         if (currentTapeState == TAPE)
@@ -170,7 +169,7 @@ uint8_t Check_TapeSensor(void) {
         returnVal = TRUE;
         PostTopHSM(thisEvent);
     }
-    
+
     lastTapeReading = currentTapeReading;
 
     return (returnVal);
@@ -196,19 +195,18 @@ uint8_t Check_PeakDetector2KHz(void) {
         BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
     } current2KHzBeaconState;
 
-    if (current2KHzPeak > HYSTERSIS_BOUND)
+    if (current2KHzPeak > HYSTERSIS_BOUND_TWO)
         current2KHzBeaconState = BEACON_DETECTED_2KHZ;
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
-    
-//    printf("\n\t%d ", current2KHzPeak);
+
+//        printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
         if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
             thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
             LED_OnBank(LED_BANK2, 7);
-        }
-        else {
+        } else {
             thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
             LED_OffBank(LED_BANK2, 7);
         }
@@ -275,24 +273,24 @@ uint8_t Check_PeakDetector15KHz(void) {
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-        int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
-    
+    int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
+//    printf("\n\t%d", current15KHzPeak);
+
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
     } current15KHzBeaconState;
 
-    if (current15KHzPeak > HYSTERSIS_BOUND)
+    if (current15KHzPeak > HYSTERSIS_BOUND_ONE_FIVE)
         current15KHzBeaconState = BEACON_DETECTED_15KHZ;
     else
         current15KHzBeaconState = BEACON_NOT_DETECTED_15KHZ;
-    
+
 
     if (current15KHzBeaconState != last15KHzBeaconState) { //event detected
         if (current15KHzBeaconState == BEACON_DETECTED_15KHZ) {
             thisEvent.EventType = ONE_FIVE_KHZ_BEACON_DETECTED;
             LED_OnBank(LED_BANK3, 7);
-        }
-        else {
+        } else {
             thisEvent.EventType = ONE_FIVE_KHZ_BEACON_NOT_DETECTED;
             LED_OffBank(LED_BANK3, 7);
         }
@@ -345,33 +343,69 @@ unsigned int filterPeak15KHz(unsigned int peakReading) {
     return (sum / BUFFER_SIZE);
 }
 
-//#define TIMER1_US_PER_TICK 25
-//#define ECHO_THRESHOLD 0
+uint8_t Check_PingSensor(void) {
+//    switch (pingSensorState) {
 //
-//typedef enum {
-//    ECHO_NONE,
-//            ECHO_HIGH,
-//            ECHO_LOW,
-//} EchoState_t;
+//        case PING:
+//            Robot_SendPing(1);
+//            //            if (Robot_ReadPingSensor() > 800) {
+//            //                Robot_SendPing(0);
+//            //                pingSensorState = ECHO;
+//            //                freeRunningTimer = 0;
+//            //            }
+//            //            if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
+//            //                printf("\n\t%d", Robot_ReadPingSensor());
+//            if (freeRunningTimer > 10000 / FREE_RUNNING_TIMER) {
+//                Robot_SendPing(0);
+//                pingSensorState = ECHO1;
+//                freeRunningTimer = 0;
+//            }
+//            //            printf("PING");
+//            break;
 //
-//static EchoState_t lastEchoState = ECHO_NONE;
-//static int timerStart;
-//static int microSecCount;
+//        case ECHO1:
+////                        if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
+////                            printf("\n\t%d", Robot_ReadPingSensor());
+//            if (Robot_ReadPingSensor()) {
+//                pingSensorState = ECHO2;
+//                freeRunningTimer = 0;
+//            }
+//            if (freeRunningTimer > 60000 / FREE_RUNNING_TIMER) {
+//                pingSensorState = PING;
+//                freeRunningTimer = 0;
+//            }
+//            //            printf("ECHO1");
+//            break;
 //
-//int Check_PingSensor(unsigned int EWpin) {
-//    EchoState_t currentEchoState;
-//    if (AD_ReadADPin(EWPin) > ECHO_THRESHOLD)
-//        currentEchoState = ECHO_HIGH;
-//    else
-//        currentEchoState = ECHO_LOW;
-//    
-//    if (lastEchoState == ECHO_LOW && currentEchoState == ECHO_HIGH) {
-//        OpenTimer(TI_ON, 0xFFFF);
-//        timerStart = ReadTimer();
-//        T1CON
-//        
+//        case ECHO2:
+//            if (!(Robot_ReadPingSensor())) {
+//                pingSensorState = WAIT;
+//                echoRecorded = freeRunningTimer;
+//                freeRunningTimer = 0;
+//                printf("\n\t%d", echoRecorded * FREE_RUNNING_TIMER / 58);
+//            }
+//            if (freeRunningTimer > 23200 / FREE_RUNNING_TIMER) {
+//                pingSensorState = PING;
+//                freeRunningTimer = 0;
+//                echoRecorded = -1;
+//            }
+//            //            printf("ECHO2");
+//            break;
+//
+//        case WAIT:
+//            //            if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
+//            //                printf("\n\t%d", Robot_ReadPingSensor());
+//            if (freeRunningTimer > 60000 / FREE_RUNNING_TIMER) {
+//                pingSensorState = PING;
+//                freeRunningTimer = 0;
+//            }
+//            //            printf("WAIT");
+//            break;
+//
+//        default:
+//            break;
 //    }
-//}
+}
 
 /* 
  * The Test Harness for the event checkers is conditionally compiled using

@@ -34,6 +34,7 @@
 #include "LoadingSubHSM.h"
 #include "timers.h"
 #include <stdio.h>
+#include "robot.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -121,18 +122,22 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                 // this is where you would put any actions associated with the
                 // transition from the initial pseudo-state into the actual
                 // initial state
-                ES_Timer_InitTimer(START_TIMER, 3000);
+
+                Robot_RightMotor(0);
+                Robot_LeftMotor(0);
 
                 // now put the machine into the actual initial state
-                nextState = EmptySubState;
+                nextState = PreGameSubState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
         case PreGameSubState: // in the first state, replace this with correct names
+
             switch (ThisEvent.EventType) {
-                case START_SWITCH:
+                case BUMPER_DOWN:
+                    ES_Timer_InitTimer(START_TIMER, 3000);
                     nextState = EmptySubState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -151,6 +156,7 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                         nextState = EmptySubState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = LOADED;
+                        PostTopHSM(ThisEvent);
                     }
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level

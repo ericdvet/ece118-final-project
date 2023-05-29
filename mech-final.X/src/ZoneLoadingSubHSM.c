@@ -42,6 +42,7 @@ typedef enum {
     SubFindGoalState,
     SubGoalFoundState,
     ZoneLoadingTo23State,
+    SubCollisionRight,
 } ZoneLoadingSubHSMState_t;
 
 static const char *StateNames[] = {
@@ -49,6 +50,7 @@ static const char *StateNames[] = {
     "SubFindGoalState",
     "SubGoalFoundState",
     "ZoneLoadingTo23State",
+    "SubCollisionRight",
 };
 
 
@@ -124,6 +126,8 @@ ES_Event RunZoneLoadingSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
+                Robot_LeftMotor(-500);
+                Robot_RightMotor(500);
                 nextState = SubFindGoalState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -132,11 +136,13 @@ ES_Event RunZoneLoadingSubHSM(ES_Event ThisEvent) {
 
         case SubFindGoalState: // in the first state, replace this with correct names
 
-            Robot_LeftMotor(250);
-            Robot_RightMotor(-250);
+            //            Robot_LeftMotor(-500);
+            //            Robot_RightMotor(500);
 
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
+                    Robot_LeftMotor(500);
+                    Robot_RightMotor(500);
                     nextState = SubGoalFoundState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -149,45 +155,57 @@ ES_Event RunZoneLoadingSubHSM(ES_Event ThisEvent) {
 
         case SubGoalFoundState:
 
-            Robot_LeftMotor(500);
-            Robot_RightMotor(500);
+            //            Robot_LeftMotor(500);
+            //            Robot_RightMotor(500);
 
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     nextState = SubFindGoalState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
+                    //                    ES_Timer_InitTimer(START_TIMER, 1000);
                     break;
                 case TAPE_DETECTED:
-                    switch (ThisEvent.EventParam) {
-                        case 8: // Rear Right
-                            Robot_LeftMotor(0);
-                            Robot_RightMotor(0);
-                            nextState = ZoneLoadingTo23State;
-                            makeTransition = TRUE;
-                            ThisEvent.EventType = ES_NO_EVENT;
-                            break;
-                        case 4: // Rear Left
-                            Robot_LeftMotor(0);
-                            Robot_RightMotor(0);
-                            nextState = ZoneLoadingTo23State;
-                            makeTransition = TRUE;
-                            ThisEvent.EventType = ES_NO_EVENT;
-                            break;
-                        case 2: // Front Right
-                            break;
-                        case 1: // Front Left
-                            break;
+                    if (ThisEvent.EventParam & 0b1100) {
+                        Robot_LeftMotor(0);
+                        Robot_RightMotor(0);
+                        nextState = ZoneLoadingTo23State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = LOAD_TO_23;
+                        PostTopHSM(ThisEvent);
                     }
                     break;
+                    //                case BUMPER_DOWN:
+                    //                    nextState = SubCollisionRight;
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
+            
+            break;
+
+        case SubCollisionRight:
+
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(-500);
+
+            switch (ThisEvent.EventParam) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = SubFindGoalState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
 
         case ZoneLoadingTo23State:
-            ThisEvent.EventType = LOAD_TO_23;
-            PostTopHSM(ThisEvent);
             break;
 
         default: // all unhandled states fall into here

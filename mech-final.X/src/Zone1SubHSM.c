@@ -131,7 +131,9 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = SubFindGoalState;
+                Robot_LeftMotor(500);
+                Robot_RightMotor(-500);
+                nextState = SubGoalFoundState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
@@ -139,11 +141,10 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
 
         case SubFindGoalState: // in the first state, replace this with correct names
 
-            Robot_LeftMotor(250);
-            Robot_RightMotor(-250);
-
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
+                    Robot_LeftMotor(0);
+                    Robot_RightMotor(0);
                     ES_Timer_InitTimer(START_TIMER, 1000);
                     nextState = SubGoalFoundState;
                     makeTransition = TRUE;
@@ -157,8 +158,8 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
 
         case SubGoalFoundState:
 
-            Robot_LeftMotor(500);
-            Robot_RightMotor(500);
+            //            Robot_LeftMotor(0);
+            //            Robot_RightMotor(0);
 
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
@@ -214,7 +215,7 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
 
             Robot_LeftMotor(-500);
             Robot_RightMotor(-500);
-            
+
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
                     switch (ThisEvent.EventParam) {

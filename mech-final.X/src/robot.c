@@ -1,3 +1,4 @@
+
 /*
  * File:   robot.c
  * Author: ericdvet, 
@@ -11,11 +12,11 @@
 #include "pwm.h"
 #include "serial.h"
 #include "AD.h"
-//#include "RC_Servo.h"
+#include "RC_Servo.h"
 #include "LED.h"
 #include "IO_Ports.h"
 #include "timers.h"
-#include "ping.h"
+//#include "ping.h"
 
 
 /*******************************************************************************
@@ -23,11 +24,11 @@
  ******************************************************************************/
 
 // Bumper Ports
-#define BUMPER_PORT PORTZ
+#define BUMPER_PORT PORTZ   
 #define BUMPER_FRONT_LEFT PIN3
 #define BUMPER_FRONT_RIGHT PIN4
 #define BUMPER_REAR_LEFT PIN5
-#define BUMPER_REAR_RIGHT PIN6
+#define BUMPER_REAR_RIGHT PIN7
 
 // Driving Wheel Ports
 #define LEFT_IN_1 PWM_PORTY10
@@ -39,8 +40,8 @@
 #define FLYWHEEL_PIN PWM_PORTZ06
 
 // Servo Port
-//#define SERVO_PIN1 RC_PORTY06
-//#define SERVO_PIN2 RC_PORTY07
+#define SERVO_PIN1 RC_PORTY06
+#define SERVO_PIN2 RC_PORTY07
 
 // Peak Detector Input Ports
 #define PEAK_2KHZ_PIN AD_PORTV3
@@ -53,9 +54,11 @@
 #define TAPE_DETECTOR_REAR_RIGHT AD_PORTW6
 
 // Ping Sensor Ports
-#define PING_ECHO_PIN AD_PORTV8
-#define PING_TRIGGER_PORT PORTV
-#define PING_TRIGGER_PIN PIN7
+#define PING_ECHO_PORT PORTX
+#define PING_ECHO_PIN PIN4
+//#define PING_ECHO_PIN AD_PORTV8
+#define PING_TRIGGER_PORT PORTX
+#define PING_TRIGGER_PIN PIN3
 
 #define SYS_FREQ 80000000 // Running at 200MHz
 
@@ -75,6 +78,7 @@ void Robot_Init(void) {
     PWM_AddPins(LEFT_IN_2);
     PWM_AddPins(RIGHT_IN_1);
     PWM_AddPins(RIGHT_IN_2);
+    PWM_AddPins(FLYWHEEL_PIN);
 
     // Peak Detectors
     AD_Init();
@@ -82,9 +86,9 @@ void Robot_Init(void) {
     AD_AddPins(PEAK_15KHZ_PIN);
 
     // Servo
-//    RC_Init();
-//    RC_AddPins(SERVO_PIN1);
-//    RC_AddPins(SERVO_PIN2);
+    RC_Init();
+    RC_AddPins(SERVO_PIN1);
+    RC_AddPins(SERVO_PIN2);
 
     // LEDs on UNO32
     LED_Init();
@@ -103,11 +107,11 @@ void Robot_Init(void) {
     IO_PortsSetPortInputs(BUMPER_PORT, BUMPER_FRONT_LEFT | BUMPER_FRONT_RIGHT | BUMPER_REAR_RIGHT | BUMPER_REAR_LEFT);
 
     // Ping Sensor
-    AD_AddPins(PING_ECHO_PIN);
+    IO_PortsSetPortInputs(PING_ECHO_PORT, PING_ECHO_PIN);
     IO_PortsSetPortOutputs(PING_TRIGGER_PORT, PING_TRIGGER_PIN);
 
     TIMERS_Init();
-    PING_Init();
+    //    PING_Init();
 }
 
 /**
@@ -121,6 +125,8 @@ void Robot_Init(void) {
  * @author ericdvet,  */
 void Robot_LeftMotor(int speed) {
     int in1, in2;
+    
+    printf("\n\tLeft speed: %d", speed);
 
     // Set H-Bridge direction
     if (speed < 0) {
@@ -146,6 +152,8 @@ void Robot_LeftMotor(int speed) {
  * @author ericdvet,  */
 void Robot_RightMotor(int speed) {
     int in1, in2;
+    
+    printf("\n\tRight speed: %d", speed);
 
     if (speed < 0) {
         in1 = speed * -1;
@@ -155,8 +163,8 @@ void Robot_RightMotor(int speed) {
         in2 = speed;
     }
 
-    PWM_SetDutyCycle(RIGHT_IN_1, in2);
-    PWM_SetDutyCycle(RIGHT_IN_2, in1);
+    PWM_SetDutyCycle(RIGHT_IN_1, in1);
+    PWM_SetDutyCycle(RIGHT_IN_2, in2);
 }
 
 void Robot_FlyWheel(int speed) {
@@ -171,8 +179,7 @@ void Robot_FlyWheel(int speed) {
  * @note  None.
  * @author ericdvet,  */
 void Robot_Servo(int position1, int position2) {
-//    RC_SetPulseTime(SERVO_PIN1, position1);
-//    RC_SetPulseTime(SERVO_PIN2, position2);
+    RC_SetPulseTime(SERVO_PIN1, position1);
 }
 
 /**
@@ -272,7 +279,7 @@ unsigned int Robot_Read15KHzPeakDetector(void) {
  * @brief  Returns the output of the tape sensor
  * @author ericdvet, */
 unsigned int Robot_ReadTapeSensor(void) {
-    return (8 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_RIGHT) > 820) << 3)) | (4 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_LEFT) > 820) << 2)) | 
+    return (8 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_RIGHT) > 820) << 3)) | (4 & ((AD_ReadADPin(TAPE_DETECTOR_REAR_LEFT) > 820) << 2)) |
             (2 & ((AD_ReadADPin(TAPE_DETECTOR_FRONT_RIGHT) > 820) << 1)) | (1 & (AD_ReadADPin(TAPE_DETECTOR_FRONT_LEFT) > 820));
 }
 
@@ -284,7 +291,7 @@ void Robot_SendPing(char trigger) {
 }
 
 unsigned int Robot_ReadPingSensor(void) {
-    return (AD_ReadADPin(PING_ECHO_PIN));
+    return (IO_PortsReadPort(PING_ECHO_PORT) & PING_ECHO_PIN);
 }
 
 void delay_us(unsigned int us) {
@@ -314,18 +321,25 @@ int main(void) {
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
 
-//    AD_Init();
-//    AD_AddPins(PEAK_15KHZ_PIN);
-//    while(1) {
-//        printf("\n\t%d\t\n", AD_ReadADPin(PEAK_15KHZ_PIN));
-//    }
-    
 //    while (1) {
-//        Robot_Servo(3200, 1000);
-//        delay_us(1000000);
-//        Robot_Servo(1000, 3200);
-//        delay_us(1000000);
+//        Robot_FlyWheel(700);
 //    }
+
+    //    while(1)
+    //        Robot_SendPing(1);
+
+    //    AD_Init();
+    //    AD_AddPins(PEAK_15KHZ_PIN);
+    //    while(1) {
+    //        printf("\n\t%d\t\n", AD_ReadADPin(PEAK_15KHZ_PIN));
+    //    }
+
+    //    while (1) {
+    //        Robot_Servo(2000, 1000);
+    //        delay_us(1000000);
+    //        Robot_Servo(1000, 2000);
+    //        delay_us(1000000);
+    //    }
 
     //    while (Robot_ReadPingSensor() > 500)
     //    AD_AddPins(AD_PORTV3);
@@ -342,41 +356,41 @@ int main(void) {
     //        IO_PortsClearPortBits(PORTX, PIN4);
     //    }
 
-    while (1) {
-        Robot_RightMotor(1000);
-        Robot_LeftMotor(1000);
-        DELAY(1000000);
-        Robot_RightMotor(800);
-        Robot_LeftMotor(800);
-        DELAY(1000000);
-        Robot_RightMotor(600);
-        Robot_LeftMotor(600);
-        DELAY(1000000);
-        Robot_RightMotor(400);
-        Robot_LeftMotor(400);
-        DELAY(1000000);
-        Robot_RightMotor(200);
-        Robot_LeftMotor(200);
-        DELAY(1000000);
-        Robot_RightMotor(0);
-        Robot_LeftMotor(0);
-        DELAY(1000000);
-        Robot_RightMotor(-200);
-        Robot_LeftMotor(-200);
-        DELAY(1000000);
-        Robot_RightMotor(-400);
-        Robot_LeftMotor(-400);
-        DELAY(1000000);
-        Robot_RightMotor(-600);
-        Robot_LeftMotor(-600);
-        DELAY(1000000);
-        Robot_RightMotor(-800);
-        Robot_LeftMotor(-800);
-        DELAY(1000000);
-        Robot_RightMotor(-1000);
-        Robot_LeftMotor(-1000);
-        DELAY(1000000);
-    }
+        while (1) {
+            Robot_RightMotor(1000);
+            Robot_LeftMotor(1000);
+            DELAY(1000000);
+            Robot_RightMotor(800);
+            Robot_LeftMotor(800);
+            DELAY(1000000);
+            Robot_RightMotor(600);
+            Robot_LeftMotor(600);
+            DELAY(1000000);
+            Robot_RightMotor(400);
+            Robot_LeftMotor(400);
+            DELAY(1000000);
+            Robot_RightMotor(200);
+            Robot_LeftMotor(200);
+            DELAY(1000000);
+            Robot_RightMotor(0);
+            Robot_LeftMotor(0);
+            DELAY(1000000);
+            Robot_RightMotor(-200);
+            Robot_LeftMotor(-200);
+            DELAY(1000000);
+            Robot_RightMotor(-400);
+            Robot_LeftMotor(-400);
+            DELAY(1000000);
+            Robot_RightMotor(-600);
+            Robot_LeftMotor(-600);
+            DELAY(1000000);
+            Robot_RightMotor(-800);
+            Robot_LeftMotor(-800);
+            DELAY(1000000);
+            Robot_RightMotor(-1000);
+            Robot_LeftMotor(-1000);
+            DELAY(1000000);
+        }
 
     while (1) {
         printf("\n\t%d", Robot_ReadBumpers());

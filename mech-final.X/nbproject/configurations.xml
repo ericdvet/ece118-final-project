@@ -282,7 +282,7 @@
         <property key="wpo-lto" value="false"/>
       </C32Global>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/RC_Servo.h"
-            ex="true"
+            ex="false"
             overriding="false">
         <C32>
         </C32>
@@ -299,8 +299,12 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RC_Servo.c"
+      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ping.h"
             ex="true"
+            overriding="false">
+      </item>
+      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RC_Servo.c"
+            ex="false"
             overriding="false">
         <C32>
         </C32>
@@ -334,6 +338,10 @@
         </C32CPP>
         <C32Global>
         </C32Global>
+      </item>
+      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ping.c"
+            ex="true"
+            overriding="false">
       </item>
     </conf>
   </confs>

@@ -88,6 +88,7 @@ uint8_t PostBumperService(ES_Event ThisEvent) {
 ES_Event RunBumperService(ES_Event ThisEvent) {
     ES_Event ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+    
 
     static ES_EventTyp_t lastEvent = ES_NO_EVENT;
     ES_EventTyp_t curEvent;
