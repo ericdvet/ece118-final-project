@@ -28,6 +28,7 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ZoneLoadingSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/LoadingSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/TopHSM.h</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/CollisionLeftSubHSM.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Services" projectFiles="true">
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_Bumper.h</itemPath>
@@ -73,6 +74,7 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/TopHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ReturningHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LoadingSubHSM.c</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/CollisionLeftSubHSM.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Services" projectFiles="true">
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_Bumper.c</itemPath>
@@ -302,6 +304,20 @@
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ping.h"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RC_Servo.c"
             ex="false"
@@ -342,6 +358,20 @@
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ping.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
     </conf>
   </confs>

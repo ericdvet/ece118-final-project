@@ -43,6 +43,7 @@ typedef enum {
     SubGoalFoundState,
     Zone23To1State,
     SubCollisionRight,
+    ExitState,
 } Zone23SubHSMState_t;
 
 static const char *StateNames[] = {
@@ -50,7 +51,8 @@ static const char *StateNames[] = {
     "SubFindGoalState",
     "SubGoalFoundState",
     "Zone23To1State",
-    "SubCollisionRight"
+    "SubCollisionRight",
+    "ExitState",
 };
 
 
@@ -126,8 +128,8 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                Robot_LeftMotor(800);
-                Robot_RightMotor(800);
+                //                Robot_LeftMotor(800);
+                //                Robot_RightMotor(800);
                 nextState = SubGoalFoundState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -135,10 +137,8 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             break;
 
         case SubFindGoalState: // in the first state, replace this with correct names
-
-            Robot_LeftMotor(500);
-            Robot_RightMotor(-500);
-
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
                     nextState = SubGoalFoundState;
@@ -152,14 +152,9 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             break;
 
         case SubGoalFoundState:
-
+            Robot_LeftMotor(800);
+            Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
-                    //                case BUMPER_DOWN:
-                    //                    nextState = SubCollisionRight;
-                    //                    makeTransition = TRUE;
-                    //                    ThisEvent.EventType = ES_NO_EVENT;
-                    //                    ES_Timer_InitTimer(START_TIMER, 3000);
-                    //                    break;
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     nextState = SubFindGoalState;
                     makeTransition = TRUE;
@@ -180,10 +175,8 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             break;
 
         case SubCollisionRight:
-
             Robot_LeftMotor(-500);
             Robot_RightMotor(-500);
-
             switch (ThisEvent.EventParam) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
@@ -197,10 +190,22 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             }
             break;
 
-
         case Zone23To1State:
+            Robot_LeftMotor(800);
+            Robot_RightMotor(800);
+            switch (ThisEvent.EventType) {
+                case TAPE_DETECTED:
+                case TAPE_NOT_DETECTED:
+                    if (!(ThisEvent.EventParam | 0b1000)) {
+                        nextState = ExitState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ZONE_23_TO_1;
+                        PostTopHSM(ThisEvent);
+                    }
+            }
             break;
 
+        case ExitState:
         default: // all unhandled states fall into here
             break;
     } // end switch on Current State

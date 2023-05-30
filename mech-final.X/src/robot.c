@@ -126,7 +126,7 @@ void Robot_Init(void) {
 void Robot_LeftMotor(int speed) {
     int in1, in2;
     
-    printf("\n\tLeft speed: %d", speed);
+//    printf("\n\tLeft speed: %d", speed);
 
     // Set H-Bridge direction
     if (speed < 0) {
@@ -153,7 +153,7 @@ void Robot_LeftMotor(int speed) {
 void Robot_RightMotor(int speed) {
     int in1, in2;
     
-    printf("\n\tRight speed: %d", speed);
+//    printf("\n\tRight speed: %d", speed);
 
     if (speed < 0) {
         in1 = speed * -1;

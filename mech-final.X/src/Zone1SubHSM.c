@@ -46,6 +46,7 @@ typedef enum {
     SubShooting,
     SubReturn,
     SubZone1To23,
+    ExitState,
 } Zone1SubHSMState_t;
 
 static const char *StateNames[] = {
@@ -56,6 +57,7 @@ static const char *StateNames[] = {
     "SubShooting",
     "SubReturn",
     "SubZone1To23",
+    "ExitState",
 };
 
 
@@ -131,21 +133,18 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                Robot_LeftMotor(500);
-                Robot_RightMotor(-500);
                 nextState = SubGoalFoundState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(START_TIMER, 1000);
             }
             break;
 
         case SubFindGoalState: // in the first state, replace this with correct names
-
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
-                    Robot_LeftMotor(0);
-                    Robot_RightMotor(0);
-                    ES_Timer_InitTimer(START_TIMER, 1000);
                     nextState = SubGoalFoundState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -157,13 +156,12 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
             break;
 
         case SubGoalFoundState:
-
-            //            Robot_LeftMotor(0);
-            //            Robot_RightMotor(0);
-
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
+                        ES_Timer_InitTimer(START_TIMER, 1000);
                         nextState = SubAiming;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -179,14 +177,14 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
 
             Robot_LeftMotor(0);
             Robot_RightMotor(0);
-            //Robot_Flywheel(200);
 
             switch (ThisEvent.EventType) {
-                case ONE_FIVE_KHZ_BEACON_DETECTED:
-                    nextState = SubShooting;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    ES_Timer_InitTimer(START_TIMER, 2000);
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        nextState = SubReturn;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
                     break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
@@ -217,23 +215,16 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
             Robot_RightMotor(-500);
 
             switch (ThisEvent.EventType) {
-                case TAPE_DETECTED:
-                    switch (ThisEvent.EventParam) {
-                        case 8: // Rear Right
-                            break;
-                        case 4: // Rear Left
-                            break;
-                        case 2: // Front Right
-                            nextState = SubZone1To23;
-                            makeTransition = TRUE;
-                            ThisEvent.EventType = ES_NO_EVENT;
-                            break;
-                        case 1: // Front Left
-                            nextState = SubZone1To23;
-                            makeTransition = TRUE;
-                            ThisEvent.EventType = ES_NO_EVENT;
-                            break;
-                    }
+                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    nextState = SubFindGoalState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case BUMPER_DOWN:
+                    nextState = ExitState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = RETURNED;
+                    PostTopHSM(ThisEvent);
                     break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level

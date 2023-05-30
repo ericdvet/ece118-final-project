@@ -20,6 +20,7 @@
 #include "Zone1SubHSM.h"
 #include "Zone23SubHSM.h"
 #include "ZoneLoadingSubHSM.h"
+#include "CollisionLeftSubHSM.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -39,6 +40,7 @@ typedef enum {
     Zone1State,
     ShootingState,
     ReturningState,
+    CollisionLeftState,
 } TopHSMState_t;
 
 static const char *StateNames[] = {
@@ -49,6 +51,7 @@ static const char *StateNames[] = {
     "Zone1State",
     "ShootingState",
     "ReturningState",
+    "CollisionLeftState",
 };
 
 /*******************************************************************************
@@ -165,6 +168,12 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                case BUMPER_DOWN:
+                    InitCollisionLeftSubHSM();
+                    nextState = CollisionLeftState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
                 case ES_NO_EVENT:
                 default:
                     break;
@@ -180,6 +189,12 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                case BUMPER_DOWN:
+                    InitCollisionLeftHSM();
+                    nextState = CollisionLeftState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
                 case ES_NO_EVENT:
                 default:
                     break;
@@ -189,9 +204,15 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
         case Zone1State:
             ThisEvent = RunZone1SubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
-                case READY_TO_SHOOT:
-                    InitShootingSubHSM();
-                    nextState = ShootingState;
+                case RETURNED:
+                    InitLoadingSubHSM();
+                    nextState = LoadingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case BUMPER_DOWN:
+                    InitZoneCollisionLeftHSM();
+                    nextState = CollisionLeftState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
@@ -225,6 +246,15 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case CollisionLeft:
+            ThisEvent = RunCollisionLeftSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
                 case ES_NO_EVENT:
                 default:
                     break;
