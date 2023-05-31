@@ -31,7 +31,7 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "CollisionLeftSubHSM.h"
+#include "LeftToRightSubHSM.h"
 #include "robot.h"
 
 /*******************************************************************************
@@ -39,14 +39,16 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    Collision1State,
-    Collision2State,
-} CollisionLeftSubHSMState_t;
+    SubTurnLeftState,
+    SubMoveIntoZoneState,
+    SubRecenterState,
+} LeftToRightSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "Collision1State",
-    "Collision2State",
+    "SubTurnLeftState",
+    "SubMoveIntoZoneState",
+    "SubRecenterState",
 };
 
 
@@ -63,7 +65,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static CollisionLeftSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static LeftToRightSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -81,11 +83,11 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitCollisionLeftSubHSM(void) {
+uint8_t InitLeftToRightSubHSM(void) {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunCollisionLeftSubHSM(INIT_EVENT);
+    returnEvent = RunLeftToRightSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -107,9 +109,9 @@ uint8_t InitCollisionLeftSubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
+ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    CollisionLeftSubHSMState_t nextState; // <- change type to correct enum
+    LeftToRightSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
@@ -122,28 +124,48 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                //                Robot_LeftMotor(800);
-                //                Robot_RightMotor(800);
-                nextState = Collision1State;
+                ES_Timer_InitTimer(START_TIMER, 1000);
+                nextState = SubTurnLeftState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case Collision1State:
-            Robot_LeftMotor(-500);
+        case SubTurnLeftState: // in the first state, replace this with correct names
             Robot_RightMotor(-500);
+            Robot_LeftMotor(500);
             switch (ThisEvent.EventType) {
-                case BUMPER_DOWN:
-                    if (ThisEvent.EventParam == 0b1100) {
-                        nextState = Collision2State;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
+                case ES_TIMEOUT:
+                    nextState = SubMoveIntoZoneState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                     break;
-                default:
+                default: // all unhandled events pass the event back up to the next level
                     break;
             }
+            break;
+
+        case SubMoveIntoZoneState:
+            Robot_RightMotor(500);
+            Robot_LeftMotor(500);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam | 0b1000) {
+                        ES_Timer_InitTimer(TIMER_TWO, 1000);
+                        nextState = SubRecenterState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                        break;
+                    }
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+            
+        case SubRecenterState:
+            Robot_RightMotor(-500);
+            Robot_LeftMotor(-500);
+            break;
 
         default: // all unhandled states fall into here
             break;
@@ -151,9 +173,9 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunCollisionLeftSubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunLeftToRightSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunCollisionLeftSubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunLeftToRightSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end

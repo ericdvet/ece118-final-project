@@ -146,6 +146,7 @@ static const char *EventNames[] = {
 #define PEAK_DETECTOR_TIMER 1
 #define TAPE_SENSOR_TIMER 2
 #define START_TIMER 3
+#define TIMER_TWO 4
 
 
 

@@ -135,6 +135,9 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
         case PreGameSubState: // in the first state, replace this with correct names
 
+            Robot_RightMotor(0);
+            Robot_LeftMotor(0);
+
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
                     ES_Timer_InitTimer(START_TIMER, 3000);
@@ -150,13 +153,14 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
         case EmptySubState: // in the first state, replace this with correct names
             switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        nextState = EmptySubState;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = LOADED;
-                        PostTopHSM(ThisEvent);
-                    }
+                    //                case ES_TIMEOUT:
+                    //                    if (ThisEvent.EventParam == START_TIMER) {
+                    //                        nextState = EmptySubState;
+                    //                        makeTransition = TRUE;
+                    //                        ThisEvent.EventType = LOADED;
+                    //                        PostTopHSM(ThisEvent);
+                    //                    }
+                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;

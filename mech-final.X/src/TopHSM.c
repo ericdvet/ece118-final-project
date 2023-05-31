@@ -21,6 +21,7 @@
 #include "Zone23SubHSM.h"
 #include "ZoneLoadingSubHSM.h"
 #include "CollisionLeftSubHSM.h"
+#include "LeftToRightSubHSM.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -41,6 +42,7 @@ typedef enum {
     ShootingState,
     ReturningState,
     CollisionLeftState,
+    LeftToRightState,
 } TopHSMState_t;
 
 static const char *StateNames[] = {
@@ -52,6 +54,7 @@ static const char *StateNames[] = {
     "ShootingState",
     "ReturningState",
     "CollisionLeftState",
+    "LeftToRightState",
 };
 
 /*******************************************************************************
@@ -147,7 +150,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
         case LoadingState:
             ThisEvent = RunLoadingSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
-                case LOADED:
+                case ES_TIMEOUT:
                     InitZoneLoadingSubHSM();
                     nextState = ZoneLoadingState;
                     makeTransition = TRUE;
@@ -169,10 +172,19 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
                 case BUMPER_DOWN:
-                    InitCollisionLeftSubHSM();
-                    nextState = CollisionLeftState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
+                    if (ThisEvent.EventParam == 0b0011) {
+                        InitLoadingSubHSM();
+                        // now put the machine into the actual initial state
+                        nextState = LoadingState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    if ((ThisEvent.EventParam | 0b0001) || (ThisEvent.EventParam | 0b0010)) {
+                        InitCollisionLeftSubHSM();
+                        nextState = CollisionLeftState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
                     break;
                 case ES_NO_EVENT:
                 default:
@@ -180,47 +192,47 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             }
             break;
 
-        case Zone23State:
-            ThisEvent = RunZone23SubHSM(ThisEvent);
-            switch (ThisEvent.EventType) {
-                case ZONE_23_TO_1:
-                    InitZone1SubHSM();
-                    nextState = Zone1State;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
-                case BUMPER_DOWN:
-                    InitCollisionLeftHSM();
-                    nextState = CollisionLeftState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
-                case ES_NO_EVENT:
-                default:
-                    break;
-            }
-            break;
-
-        case Zone1State:
-            ThisEvent = RunZone1SubHSM(ThisEvent);
-            switch (ThisEvent.EventType) {
-                case RETURNED:
-                    InitLoadingSubHSM();
-                    nextState = LoadingState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
-                case BUMPER_DOWN:
-                    InitZoneCollisionLeftHSM();
-                    nextState = CollisionLeftState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
-                case ES_NO_EVENT:
-                default:
-                    break;
-            }
-            break;
+            //        case Zone23State:
+            //            ThisEvent = RunZone23SubHSM(ThisEvent);
+            //            switch (ThisEvent.EventType) {
+            //                case ZONE_23_TO_1:
+            //                    InitZone1SubHSM();
+            //                    nextState = Zone1State;
+            //                    makeTransition = TRUE;
+            //                    ThisEvent.EventType = ES_NO_EVENT;
+            //                    break;
+            //                    //                case BUMPER_DOWN:
+            //                    //                    InitCollisionLeftSubHSM();
+            //                    //                    nextState = CollisionLeftState;
+            //                    //                    makeTransition = TRUE;
+            //                    //                    ThisEvent.EventType = ES_NO_EVENT;
+            //                    //                    break;
+            //                case ES_NO_EVENT:
+            //                default:
+            //                    break;
+            //            }
+            //            break;
+            //
+            //        case Zone1State:
+            //            ThisEvent = RunZone1SubHSM(ThisEvent);
+            //            switch (ThisEvent.EventType) {
+            //                case RETURNED:
+            //                    InitLoadingSubHSM();
+            //                    nextState = LoadingState;
+            //                    makeTransition = TRUE;
+            //                    ThisEvent.EventType = ES_NO_EVENT;
+            //                    break;
+            //                    //                case BUMPER_DOWN:
+            //                    //                    InitCollisionLeftSubHSM();
+            //                    //                    nextState = CollisionLeftState;
+            //                    //                    makeTransition = TRUE;
+            //                    //                    ThisEvent.EventType = ES_NO_EVENT;
+            //                    //                    break;
+            //                case ES_NO_EVENT:
+            //                default:
+            //                    break;
+            //            }
+            //            break;
 
         case ShootingState:
             ThisEvent = RunShootingSubHSM(ThisEvent);
@@ -252,14 +264,41 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             }
             break;
 
-        case CollisionLeft:
+        case CollisionLeftState:
             ThisEvent = RunCollisionLeftSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam == 0b1100) {
+                        InitLeftToRightSubHSM();
+                        nextState = LeftToRightState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
                 case ES_NO_EVENT:
                 default:
                     break;
             }
             break;
+
+        case LeftToRightState:
+            ThisEvent = RunLeftToRightSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == TIMER_TWO) {
+                        InitLoadingSubHSM();
+                        // now put the machine into the actual initial state
+                        nextState = LoadingState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
 
         default: // all unhandled states fall into here
             break;

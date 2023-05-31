@@ -32,18 +32,23 @@
 #include "BOARD.h"
 #include "TopHSM.h"
 #include "ReturningSubHSM.h"
+#include "robot.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFirstState,
+    SubFindGoalState,
+    SubReturn1,
+    ExitState,
 } ReturningSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubFirstState",
+    "SubFindGoalState",
+    "SubReturn1",
+    "ExitState",
 };
 
 
@@ -119,20 +124,51 @@ ES_Event RunReturningSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = SubFirstState;
+                nextState = SubReturn1;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case SubFirstState: // in the first state, replace this with correct names
+        case SubFindGoalState: // in the first state, replace this with correct names
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    nextState = SubReturn1;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
             break;
 
+        case SubReturn1:
+
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(-500);
+
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    nextState = SubFindGoalState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case BUMPER_DOWN:
+                    nextState = ExitState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = RETURNED;
+                    PostTopHSM(ThisEvent);
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case ExitState:
         default: // all unhandled states fall into here
             break;
     } // end switch on Current State
