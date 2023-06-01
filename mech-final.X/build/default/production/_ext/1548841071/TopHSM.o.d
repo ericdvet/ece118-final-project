@@ -25,8 +25,8 @@ build/default/production/_ext/1548841071/TopHSM.o: \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ReturningSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ShootingSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Zone1SubHSM.h \
- C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Zone23SubHSM.h \
- C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ZoneLoadingSubHSM.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/FindGoalSubHSM.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LeftGameSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/CollisionLeftSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LeftToRightSubHSM.h
 
@@ -80,9 +80,9 @@ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Zone1SubHSM.h:
 
-C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/Zone23SubHSM.h:
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/FindGoalSubHSM.h:
 
-C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/ZoneLoadingSubHSM.h:
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LeftGameSubHSM.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/CollisionLeftSubHSM.h:
 

@@ -31,7 +31,7 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "Zone23SubHSM.h"
+#include "LeftGameSubHSM.h"
 #include "robot.h"
 
 /*******************************************************************************
@@ -39,20 +39,28 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFindGoalState,
-    SubGoalFoundState,
+    SubLoadingFindGoalState,
+    SubLoadingGoalFoundState,
+    ZoneLoadingTo23State,
+    Sub23FindGoalState,
+    Sub23GoalFoundState,
     Zone23To1State,
-    SubCollisionRight,
-    ExitState,
-} Zone23SubHSMState_t;
+    Sub1FindGoalState,
+    Sub1GoalFoundState,
+    SubShootState,
+    SubReturnState,
+} LeftGameSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubFindGoalState",
-    "SubGoalFoundState",
+    "SubLoadingFindGoalState",
+    "SubLoadingGoalFoundState",
+    "ZoneLoadingTo23State",
+    "Sub23FindGoalState",
+    "Sub23GoalFoundState",
     "Zone23To1State",
-    "SubCollisionRight",
-    "ExitState",
+    "Sub1FindGoalState",
+    "Sub1GoalFoundState",
 };
 
 
@@ -69,7 +77,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static Zone23SubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static LeftGameSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -87,11 +95,11 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitZone23SubHSM(void) {
+uint8_t InitLeftGameSubHSM(void) {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunZone23SubHSM(INIT_EVENT);
+    returnEvent = RunLeftGameSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -113,9 +121,9 @@ uint8_t InitZone23SubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
+ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    Zone23SubHSMState_t nextState; // <- change type to correct enum
+    LeftGameSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
@@ -128,20 +136,57 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                //                Robot_LeftMotor(800);
-                //                Robot_RightMotor(800);
-                nextState = SubGoalFoundState;
+                //                Robot_LeftMotor(-500);
+                //                Robot_RightMotor(500);
+                nextState = SubLoadingGoalFoundState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case SubFindGoalState: // in the first state, replace this with correct names
+        case SubLoadingGoalFoundState:
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
+            switch (ThisEvent.EventType) {
+                    //                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    //                    nextState = SubLoadingFindGoalState;
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    //                    ES_Timer_InitTimer(START_TIMER, 1000);
+                    //                    break;
+                case TAPE_DETECTED:
+                    if (ThisEvent.EventParam & 0b1100) {
+                        nextState = Sub23GoalFoundState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case ZoneLoadingTo23State:
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
+            switch (ThisEvent.EventType) {
+                case TAPE_DETECTED:
+                case TAPE_NOT_DETECTED:
+                    if (!(ThisEvent.EventParam | 0b1000)) {
+                        nextState = Sub23GoalFoundState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+            }
+            break;
+
+        case Sub23FindGoalState: // in the first state, replace this with correct names
             Robot_LeftMotor(-500);
             Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
-                    nextState = SubGoalFoundState;
+                    nextState = Sub23GoalFoundState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
@@ -151,39 +196,24 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             }
             break;
 
-        case SubGoalFoundState:
+        case Sub23GoalFoundState:
             Robot_LeftMotor(800);
             Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
-                case TWO_KHZ_BEACON_NOT_DETECTED:
-                    nextState = SubFindGoalState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
+                    //                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    //                    nextState = Sub23FindGoalState;
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    //                    ES_Timer_InitTimer(START_TIMER, 1000);
+                    //                    break;
                 case TAPE_DETECTED:
                     if (ThisEvent.EventParam & 0b1100) {
-                        nextState = Zone23To1State;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ZONE_23_TO_1;
-                        PostTopHSM(ThisEvent);
-                    }
-                    break;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
-            break;
-
-        case SubCollisionRight:
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(-500);
-            switch (ThisEvent.EventParam) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        nextState = SubGoalFoundState;
+                        nextState = Sub1GoalFoundState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
+                        ES_Timer_InitTimer(START_TIMER, 2000);
                     }
+                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
@@ -191,30 +221,48 @@ ES_Event RunZone23SubHSM(ES_Event ThisEvent) {
             break;
 
         case Zone23To1State:
-            Robot_LeftMotor(800);
-            Robot_RightMotor(800);
+            Robot_LeftMotor(0);
+            Robot_RightMotor(0);
+            //            switch (ThisEvent.EventType) {
+            //                case TAPE_DETECTED:
+            //                case TAPE_NOT_DETECTED:
+            //                    if (!(ThisEvent.EventParam | 0b1000)) {
+            //                        nextState = Sub23FindGoalState;
+            //                        makeTransition = TRUE;
+            //                        ThisEvent.EventType = ES_NO_EVENT;
+            //                    }
+            //            }
+            break;
+
+        case Sub1GoalFoundState:
+            Robot_LeftMotor(500);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
-                case TAPE_DETECTED:
-                case TAPE_NOT_DETECTED:
-                    if (!(ThisEvent.EventParam | 0b1000)) {
-                        nextState = ExitState;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ZONE_23_TO_1;
-                        PostTopHSM(ThisEvent);
-                    }
+                case ES_TIMEOUT:
+                    nextState = SubShootState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                default:
+                    break;
             }
             break;
 
-        case ExitState:
+        case SubShootState:
+            Robot_LeftMotor(-1000);
+            Robot_RightMotor(-1000);
+            break;
+
         default: // all unhandled states fall into here
             break;
+
     } // end switch on Current State
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunZone23SubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunLeftGameSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunZone23SubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunLeftGameSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end
