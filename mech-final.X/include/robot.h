@@ -125,6 +125,8 @@ void Robot_SendPing(char trigger);
 
 unsigned int Robot_ReadPingSensor(void);
 
+void Robot_FlyWheel(int speed);
+
 
 #endif 
 

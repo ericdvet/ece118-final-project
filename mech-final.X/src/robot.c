@@ -23,6 +23,8 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 
+#define MOTOR_VARIABLE 0.99
+
 // Bumper Ports
 #define BUMPER_PORT PORTZ   
 #define BUMPER_FRONT_LEFT PIN3
@@ -125,8 +127,8 @@ void Robot_Init(void) {
  * @author ericdvet,  */
 void Robot_LeftMotor(int speed) {
     int in1, in2;
-    
-//    printf("\n\tLeft speed: %d", speed);
+
+    //    printf("\n\tLeft speed: %d", speed);
 
     // Set H-Bridge direction
     if (speed < 0) {
@@ -152,15 +154,15 @@ void Robot_LeftMotor(int speed) {
  * @author ericdvet,  */
 void Robot_RightMotor(int speed) {
     int in1, in2;
-    
-//    printf("\n\tRight speed: %d", speed);
+
+    //    printf("\n\tRight speed: %d", speed);
 
     if (speed < 0) {
-        in1 = speed * -1;
+        in1 = speed * -1 * MOTOR_VARIABLE;
         in2 = 0;
     } else {
         in1 = 0;
-        in2 = speed;
+        in2 = speed * MOTOR_VARIABLE;
     }
 
     PWM_SetDutyCycle(RIGHT_IN_1, in1);
@@ -320,10 +322,10 @@ int main(void) {
     Robot_Init();
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
-
-//    while (1) {
-//        Robot_FlyWheel(700);
-//    }
+    Robot_Servo(2000, 1000);
+    while (1) {
+        Robot_FlyWheel(700);
+    }
 
     //    while(1)
     //        Robot_SendPing(1);
@@ -334,12 +336,12 @@ int main(void) {
     //        printf("\n\t%d\t\n", AD_ReadADPin(PEAK_15KHZ_PIN));
     //    }
 
-    //    while (1) {
-    //        Robot_Servo(2000, 1000);
-    //        delay_us(1000000);
-    //        Robot_Servo(1000, 2000);
-    //        delay_us(1000000);
-    //    }
+    while (1) {
+        Robot_Servo(2000, 1000);
+        delay_us(1000000);
+        Robot_Servo(1000, 2000);
+        delay_us(1000000);
+    }
 
     //    while (Robot_ReadPingSensor() > 500)
     //    AD_AddPins(AD_PORTV3);
@@ -356,41 +358,41 @@ int main(void) {
     //        IO_PortsClearPortBits(PORTX, PIN4);
     //    }
 
-        while (1) {
-            Robot_RightMotor(1000);
-            Robot_LeftMotor(1000);
-            DELAY(1000000);
-            Robot_RightMotor(800);
-            Robot_LeftMotor(800);
-            DELAY(1000000);
-            Robot_RightMotor(600);
-            Robot_LeftMotor(600);
-            DELAY(1000000);
-            Robot_RightMotor(400);
-            Robot_LeftMotor(400);
-            DELAY(1000000);
-            Robot_RightMotor(200);
-            Robot_LeftMotor(200);
-            DELAY(1000000);
-            Robot_RightMotor(0);
-            Robot_LeftMotor(0);
-            DELAY(1000000);
-            Robot_RightMotor(-200);
-            Robot_LeftMotor(-200);
-            DELAY(1000000);
-            Robot_RightMotor(-400);
-            Robot_LeftMotor(-400);
-            DELAY(1000000);
-            Robot_RightMotor(-600);
-            Robot_LeftMotor(-600);
-            DELAY(1000000);
-            Robot_RightMotor(-800);
-            Robot_LeftMotor(-800);
-            DELAY(1000000);
-            Robot_RightMotor(-1000);
-            Robot_LeftMotor(-1000);
-            DELAY(1000000);
-        }
+    while (1) {
+        Robot_RightMotor(1000);
+        Robot_LeftMotor(1000);
+        DELAY(1000000);
+        Robot_RightMotor(800);
+        Robot_LeftMotor(800);
+        DELAY(1000000);
+        Robot_RightMotor(600);
+        Robot_LeftMotor(600);
+        DELAY(1000000);
+        Robot_RightMotor(400);
+        Robot_LeftMotor(400);
+        DELAY(1000000);
+        Robot_RightMotor(200);
+        Robot_LeftMotor(200);
+        DELAY(1000000);
+        Robot_RightMotor(0);
+        Robot_LeftMotor(0);
+        DELAY(1000000);
+        Robot_RightMotor(-200);
+        Robot_LeftMotor(-200);
+        DELAY(1000000);
+        Robot_RightMotor(-400);
+        Robot_LeftMotor(-400);
+        DELAY(1000000);
+        Robot_RightMotor(-600);
+        Robot_LeftMotor(-600);
+        DELAY(1000000);
+        Robot_RightMotor(-800);
+        Robot_LeftMotor(-800);
+        DELAY(1000000);
+        Robot_RightMotor(-1000);
+        Robot_LeftMotor(-1000);
+        DELAY(1000000);
+    }
 
     while (1) {
         printf("\n\t%d", Robot_ReadBumpers());

@@ -125,6 +125,7 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
                 Robot_RightMotor(0);
                 Robot_LeftMotor(0);
+                Robot_Servo(1000, 1000);
 
                 // now put the machine into the actual initial state
                 nextState = PreGameSubState;

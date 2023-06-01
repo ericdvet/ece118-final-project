@@ -199,7 +199,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
-                    if ((ThisEvent.EventParam | 0b0001) || (ThisEvent.EventParam | 0b0010)) {
+                    if ((ThisEvent.EventParam & 0b0100) || (ThisEvent.EventParam & 0b1000)) {
                         InitCollisionLeftSubHSM();
                         nextState = CollisionLeftState;
                         makeTransition = TRUE;

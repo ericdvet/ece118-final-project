@@ -25,10 +25,10 @@
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 
-#define BUFFER_SIZE 5
+#define BUFFER_SIZE 1
 
-#define HYSTERSIS_BOUND_TWO 800
-#define HYSTERSIS_BOUND_ONE_FIVE 850
+#define HYSTERSIS_BOUND_TWO 600
+#define HYSTERSIS_BOUND_ONE_FIVE 0
 
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
@@ -200,7 +200,7 @@ uint8_t Check_PeakDetector2KHz(void) {
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
 
-//    printf("\n\t%d ", current2KHzPeak);
+    printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
         if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
