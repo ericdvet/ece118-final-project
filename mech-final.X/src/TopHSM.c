@@ -150,9 +150,9 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                 // transition from the initial pseudo-state into the actual
                 // initial state
                 // Initialize all sub-state machines
-                //                InitLoadingSubHSM();
+                InitLoadingSubHSM();
                 // now put the machine into the actual initial state
-                nextState = OffState;
+                nextState = LoadingState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
@@ -208,7 +208,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunLeftGameSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam & 0b0001) {
+                    if ((ThisEvent.EventParam & 0b0001) || (ThisEvent.EventParam & 0b0010)) {
                         InitLoadingSubHSM();
                         // now put the machine into the actual initial state
                         nextState = LoadingState;

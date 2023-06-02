@@ -26,7 +26,7 @@
 
 #define BUFFER_SIZE 1
 
-#define HYSTERSIS_BOUND_TWO 700
+#define HYSTERSIS_BOUND_TWO 625
 #define HYSTERSIS_BOUND_ONE_FIVE 0
 
 /*******************************************************************************
