@@ -87,8 +87,5 @@ uint8_t Check_PeakDetector2KHz(void);
  */
 uint8_t Check_PeakDetector15KHz(void);
 
-uint8_t Check_PingSensor(void);
-
-
 #endif	
 

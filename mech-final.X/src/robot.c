@@ -324,7 +324,7 @@ int main(void) {
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
     Robot_Servo(2000, 1000);
     while (1) {
-        Robot_FlyWheel(700);
+        Robot_FlyWheel(600);
     }
 
     //    while(1)

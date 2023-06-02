@@ -17,8 +17,8 @@
  * Updated on 16/Sep/2013
  */
 
-#ifndef SUB_SHOOTING_HSM_H  // <- This should be changed to your own guard on both
-#define SUB_SHOOTING_HSM_H  //    of these lines
+#ifndef SUB_RIGHT_TO_LEFT_HSM_H  // <- This should be changed to your own guard on both
+#define SUB_RIGHT_TO_LEFT_HSM_H  //    of these lines
 
 
 /*******************************************************************************
@@ -51,7 +51,7 @@
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitShootingSubHSM(void);
+uint8_t InitRightToLeftSubHSM(void);
 
 /**
  * @Function RunTemplateSubHSM(ES_Event ThisEvent)
@@ -68,7 +68,7 @@ uint8_t InitShootingSubHSM(void);
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunShootingSubHSM(ES_Event ThisEvent);
+ES_Event RunRightToLeftSubHSM(ES_Event ThisEvent);
 
 #endif /* SUB_HSM_Template_H */
 

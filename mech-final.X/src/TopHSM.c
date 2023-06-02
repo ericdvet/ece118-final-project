@@ -14,14 +14,14 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "TopHSM.h"
-#include "LoadingSubHSM.h" //#include all sub state machines called
-#include "ReturningSubHSM.h"
-#include "ShootingSubHSM.h"
-#include "Zone1SubHSM.h"
+
+#include "CollisionLeftSubHSM.h" //#include all sub state machines called
 #include "FindGoalSubHSM.h"
 #include "LeftGameSubHSM.h"
-#include "CollisionLeftSubHSM.h"
 #include "LeftToRightSubHSM.h"
+#include "LoadingSubHSM.h"
+#include "RightGameSubHSM.h"
+#include "RightToLeftSubHSM.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -35,26 +35,28 @@
 
 typedef enum {
     InitPState,
+    OffState,
     LoadingState,
-    LeftGameState,
     FindGoalState,
-    Zone1State,
-    ShootingState,
-    ReturningState,
+    LeftGameState,
+    RightGameState,
     CollisionLeftState,
+    CollisionRightState,
     LeftToRightState,
+    RightToLeftState,
 } TopHSMState_t;
 
 static const char *StateNames[] = {
     "InitPState",
+    "OffState",
     "LoadingState",
-    "LeftGameState",
     "FindGoalState",
-    "Zone1State",
-    "ShootingState",
-    "ReturningState",
+    "LeftGameState",
+    "RightGameState",
     "CollisionLeftState",
+    "CollisionRightState",
     "LeftToRightState",
+    "RightToLeftState",
 };
 
 typedef enum {
@@ -148,11 +150,25 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                 // transition from the initial pseudo-state into the actual
                 // initial state
                 // Initialize all sub-state machines
-                InitLoadingSubHSM();
+                //                InitLoadingSubHSM();
                 // now put the machine into the actual initial state
-                nextState = LoadingState;
+                nextState = OffState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
+            }
+            break;
+
+        case OffState:
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    InitLoadingSubHSM();
+                    nextState = LoadingState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
             }
             break;
 
@@ -178,9 +194,9 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     if (initialPosition == LeftField) {
                         InitLeftGameSubHSM();
                         nextState = LeftGameState;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
                     }
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                     break;
                 case ES_NO_EVENT:
                 default:
@@ -192,19 +208,42 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunLeftGameSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam == 0b0011) {
+                    if (ThisEvent.EventParam & 0b0001) {
                         InitLoadingSubHSM();
                         // now put the machine into the actual initial state
                         nextState = LoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
-                    if ((ThisEvent.EventParam & 0b0100) || (ThisEvent.EventParam & 0b1000)) {
-                        InitCollisionLeftSubHSM();
-                        nextState = CollisionLeftState;
+                    //                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
+                    //                        InitCollisionLeftSubHSM();
+                    //                        nextState = CollisionLeftState;
+                    //                        makeTransition = TRUE;
+                    //                        ThisEvent.EventType = ES_NO_EVENT;
+                    //                    }
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case RightGameState:
+            ThisEvent = RunRightGameSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam & 0b0010) {
+                        InitLoadingSubHSM();
+                        nextState = LoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
+                    //                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
+                    //                        InitCollisionLeftSubHSM();
+                    //                        nextState = CollisionLeftState;
+                    //                        makeTransition = TRUE;
+                    //                        ThisEvent.EventType = ES_NO_EVENT;
+                    //                    }
                     break;
                 case ES_NO_EVENT:
                 default:
@@ -216,7 +255,7 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunCollisionLeftSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam == 0b1100) {
+                    if (ThisEvent.EventParam & 0b0001) {
                         InitLeftToRightSubHSM();
                         nextState = LeftToRightState;
                         makeTransition = TRUE;
@@ -236,6 +275,23 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     if (ThisEvent.EventParam == TIMER_TWO) {
                         InitLoadingSubHSM();
                         // now put the machine into the actual initial state
+                        nextState = LoadingState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case RightToLeftState:
+            ThisEvent = RunRightToLeftSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == TIMER_TWO) {
+                        InitLoadingSubHSM();
                         nextState = LoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;

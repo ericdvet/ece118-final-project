@@ -21,20 +21,18 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ES_Configure.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="HSMs" projectFiles="true">
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ReturningSubHSM.h</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ShootingSubHSM.h</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Zone1SubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/LoadingSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/TopHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/CollisionLeftSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/LeftToRightSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/LeftGameSubHSM.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/FindGoalSubHSM.h</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/RightGameSubHSM.h</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/RightToLeftSubHSM.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Services" projectFiles="true">
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_Bumper.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_TapeSensor.h</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_PingSensor.h</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/Service_PeakDetector.h</itemPath>
       </logicalFolder>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/AD.h</itemPath>
@@ -47,7 +45,6 @@
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/EventChecker.h</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/timers.h</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/LED.h</itemPath>
-      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ping.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -68,19 +65,17 @@
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ES_Timers.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="HSMs" projectFiles="true">
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Zone1SubHSM.c</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ShootingSubHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/TopHSM.c</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ReturningHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LoadingSubHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/CollisionLeftSubHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LeftToRightSubHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LeftGameSubHSM.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/FindGoalSubHSM.c</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RightGameSubHSM.c</itemPath>
+        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RightToLeftSubHSM.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Services" projectFiles="true">
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_Bumper.c</itemPath>
-        <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PingSensor.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_TapeSensor.c</itemPath>
         <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/EventChecker.c</itemPath>
@@ -94,7 +89,6 @@
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/robot.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/timers.c</itemPath>
       <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/LED.c</itemPath>
-      <itemPath>C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ping.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -303,24 +297,6 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/include/ping.h"
-            ex="true"
-            overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/RC_Servo.c"
             ex="false"
             overriding="false">
@@ -341,24 +317,6 @@
       </item>
       <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/Service_PeakDetector.c"
             ex="false"
-            overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
-      <item path="C:/UCSC/2022-2023/Spring 2023/ECE 118/mech-final-project/mech-final.X/src/ping.c"
-            ex="true"
             overriding="false">
         <C32>
         </C32>

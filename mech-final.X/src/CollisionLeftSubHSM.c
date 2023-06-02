@@ -131,11 +131,11 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
             break;
 
         case Collision1State:
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(-500);
+            Robot_LeftMotor(-1000);
+            Robot_RightMotor(-1000);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam == 0b1100) {
+                    if (ThisEvent.EventParam & 0b0001) {
                         nextState = Collision2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;

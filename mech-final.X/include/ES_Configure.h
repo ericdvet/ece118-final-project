@@ -50,55 +50,34 @@ typedef enum {
     BUMPER_UP,
     TAPE_DETECTED,
     TAPE_NOT_DETECTED,
-    SENSOR_READING,
     TWO_KHZ_BEACON_DETECTED,
     TWO_KHZ_BEACON_NOT_DETECTED,
     ONE_FIVE_KHZ_BEACON_DETECTED,
     ONE_FIVE_KHZ_BEACON_NOT_DETECTED,
-    // TOP HSM
-    LOADED,
-    LOAD_TO_23,
-    ZONE_23_TO_LOAD,
-    ZONE_23_TO_1,
-    READY_TO_SHOOT,
-    SHOTS_FIRED,
-    RETURNED,
-    REFILLED,
-    START_SWITCH,
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
 
 static const char *EventNames[] = {
-    "ES_NO_EVENT",
-    "ES_ERROR",
-    "ES_INIT",
-    "ES_ENTRY",
-    "ES_EXIT",
-    "ES_KEYINPUT",
-    "ES_LISTEVENTS",
-    "ES_TIMEOUT",
-    "ES_TIMERACTIVE",
-    "ES_TIMERSTOPPED",
+    "ES_NO_EVENT", "ES_ERROR", /* used to indicate an error from the service */
+    "ES_INIT", /* used to transition from initial pseudo-state */
+    "ES_ENTRY", /* used to enter a state*/
+    "ES_EXIT", /* used to exit a state*/
+    "ES_KEYINPUT", /* used to signify a key has been pressed*/
+    "ES_LISTEVENTS", /* used to list events in keyboard input, does not get posted to fsm*/
+    "ES_TIMEOUT", /* signals that the timer has expired */
+    "ES_TIMERACTIVE", /* signals that a timer has become active */
+    "ES_TIMERSTOPPED", /* signals that a timer has stopped*/
+    /* User-defined events start here */
     "BATTERY_CONNECTED",
     "BATTERY_DISCONNECTED",
     "BUMPER_DOWN",
     "BUMPER_UP",
     "TAPE_DETECTED",
-    "TAPE_NOT_DETECTED", // TAPE_LOST 
-    "SENSOR_READING",
+    "TAPE_NOT_DETECTED",
     "TWO_KHZ_BEACON_DETECTED",
     "TWO_KHZ_BEACON_NOT_DETECTED",
     "ONE_FIVE_KHZ_BEACON_DETECTED",
     "ONE_FIVE_KHZ_BEACON_NOT_DETECTED",
-    "LOADED",
-    "LOAD_TO_23",
-    "ZONE_23_TO_LOAD",
-    "ZONE_23_TO_1",
-    "READY_TO_SHOOT",
-    "SHOTS_FIRED",
-    "RETURNED",
-    "REFILLED",
-    "START_SWITCH",
     "NUMBEROFEVENTS",
 };
 
@@ -111,7 +90,7 @@ static const char *EventNames[] = {
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check_PingSensor
+#define EVENT_CHECK_LIST
 
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the

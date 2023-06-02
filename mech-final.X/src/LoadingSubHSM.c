@@ -128,9 +128,10 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                 Robot_Servo(1000, 1000);
 
                 // now put the machine into the actual initial state
-                nextState = PreGameSubState;
+                nextState = EmptySubState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(START_TIMER, 3000);
             }
             break;
 
@@ -154,14 +155,6 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
         case EmptySubState: // in the first state, replace this with correct names
             switch (ThisEvent.EventType) {
-                    //                case ES_TIMEOUT:
-                    //                    if (ThisEvent.EventParam == START_TIMER) {
-                    //                        nextState = EmptySubState;
-                    //                        makeTransition = TRUE;
-                    //                        ThisEvent.EventType = LOADED;
-                    //                        PostTopHSM(ThisEvent);
-                    //                    }
-                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;

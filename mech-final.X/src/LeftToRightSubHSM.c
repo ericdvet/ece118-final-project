@@ -146,11 +146,11 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubMoveIntoZoneState:
-            Robot_RightMotor(500);
-            Robot_LeftMotor(500);
+            Robot_RightMotor(800);
+            Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam | 0b1000) {
+                    if (ThisEvent.EventParam & 0b1100) {
                         ES_Timer_InitTimer(TIMER_TWO, 1000);
                         nextState = SubRecenterState;
                         makeTransition = TRUE;

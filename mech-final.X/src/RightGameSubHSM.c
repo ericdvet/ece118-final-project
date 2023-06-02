@@ -31,7 +31,7 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "LeftGameSubHSM.h"
+#include "RightGameSubHSM.h"
 #include "robot.h"
 
 /*******************************************************************************
@@ -51,7 +51,7 @@ typedef enum {
     SubShootBall3State,
     SubReorientState,
     SubReturnState,
-} LeftGameSubHSMState_t;
+} RightGameSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
@@ -83,7 +83,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static LeftGameSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static RightGameSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -101,11 +101,11 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitLeftGameSubHSM(void) {
+uint8_t InitRightGameSubHSM(void) {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunLeftGameSubHSM(INIT_EVENT);
+    returnEvent = RunRightGameSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -127,9 +127,9 @@ uint8_t InitLeftGameSubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
+ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    LeftGameSubHSMState_t nextState; // <- change type to correct enum
+    RightGameSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
@@ -336,9 +336,9 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunLeftGameSubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunRightGameSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunLeftGameSubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunRightGameSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end

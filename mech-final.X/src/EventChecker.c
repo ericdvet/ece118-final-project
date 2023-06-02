@@ -19,7 +19,6 @@
 #include "TopHSM.h"
 #include "timers.h"
 #include "LED.h"
-#include "ping.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -27,7 +26,7 @@
 
 #define BUFFER_SIZE 1
 
-#define HYSTERSIS_BOUND_TWO 600
+#define HYSTERSIS_BOUND_TWO 700
 #define HYSTERSIS_BOUND_ONE_FIVE 0
 
 /*******************************************************************************
@@ -200,7 +199,7 @@ uint8_t Check_PeakDetector2KHz(void) {
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
 
-    printf("\n\t%d ", current2KHzPeak);
+//    printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
         if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
@@ -341,70 +340,6 @@ unsigned int filterPeak15KHz(unsigned int peakReading) {
     }
 
     return (sum / BUFFER_SIZE);
-}
-
-uint8_t Check_PingSensor(void) {
-//    switch (pingSensorState) {
-//
-//        case PING:
-//            Robot_SendPing(1);
-//            //            if (Robot_ReadPingSensor() > 800) {
-//            //                Robot_SendPing(0);
-//            //                pingSensorState = ECHO;
-//            //                freeRunningTimer = 0;
-//            //            }
-//            //            if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
-//            //                printf("\n\t%d", Robot_ReadPingSensor());
-//            if (freeRunningTimer > 10000 / FREE_RUNNING_TIMER) {
-//                Robot_SendPing(0);
-//                pingSensorState = ECHO1;
-//                freeRunningTimer = 0;
-//            }
-//            //            printf("PING");
-//            break;
-//
-//        case ECHO1:
-////                        if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
-////                            printf("\n\t%d", Robot_ReadPingSensor());
-//            if (Robot_ReadPingSensor()) {
-//                pingSensorState = ECHO2;
-//                freeRunningTimer = 0;
-//            }
-//            if (freeRunningTimer > 60000 / FREE_RUNNING_TIMER) {
-//                pingSensorState = PING;
-//                freeRunningTimer = 0;
-//            }
-//            //            printf("ECHO1");
-//            break;
-//
-//        case ECHO2:
-//            if (!(Robot_ReadPingSensor())) {
-//                pingSensorState = WAIT;
-//                echoRecorded = freeRunningTimer;
-//                freeRunningTimer = 0;
-//                printf("\n\t%d", echoRecorded * FREE_RUNNING_TIMER / 58);
-//            }
-//            if (freeRunningTimer > 23200 / FREE_RUNNING_TIMER) {
-//                pingSensorState = PING;
-//                freeRunningTimer = 0;
-//                echoRecorded = -1;
-//            }
-//            //            printf("ECHO2");
-//            break;
-//
-//        case WAIT:
-//            //            if (freeRunningTimer % (1000 / FREE_RUNNING_TIMER) == 0)
-//            //                printf("\n\t%d", Robot_ReadPingSensor());
-//            if (freeRunningTimer > 60000 / FREE_RUNNING_TIMER) {
-//                pingSensorState = PING;
-//                freeRunningTimer = 0;
-//            }
-//            //            printf("WAIT");
-//            break;
-//
-//        default:
-//            break;
-//    }
 }
 
 /* 

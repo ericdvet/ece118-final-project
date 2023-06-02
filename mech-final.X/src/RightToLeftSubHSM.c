@@ -31,8 +31,7 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "Zone1SubHSM.h"
-#include "timers.h"
+#include "RightToLeftSubHSM.h"
 #include "robot.h"
 
 /*******************************************************************************
@@ -40,24 +39,16 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFindGoalState,
-    SubGoalFoundState,
-    SubAiming,
-    SubShooting,
-    SubReturn,
-    SubZone1To23,
-    ExitState,
-} Zone1SubHSMState_t;
+    SubTurnLeftState,
+    SubMoveIntoZoneState,
+    SubRecenterState,
+} RightToLeftSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubFindGoalState",
-    "SubGoalFoundState",
-    "SubAiming",
-    "SubShooting",
-    "SubReturn",
-    "SubZone1To23",
-    "ExitState",
+    "SubTurnLeftState",
+    "SubMoveIntoZoneState",
+    "SubRecenterState",
 };
 
 
@@ -74,7 +65,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static Zone1SubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static RightToLeftSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -92,11 +83,11 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitZone1SubHSM(void) {
+uint8_t InitRightToLeftSubHSM(void) {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunZone1SubHSM(INIT_EVENT);
+    returnEvent = RunRightToLeftSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -118,9 +109,9 @@ uint8_t InitZone1SubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
+ES_Event RunRightToLeftSubHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    Zone1SubHSMState_t nextState; // <- change type to correct enum
+    RightToLeftSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
@@ -133,119 +124,47 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                nextState = SubGoalFoundState;
+                ES_Timer_InitTimer(START_TIMER, 1000);
+                nextState = SubTurnLeftState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
-                ES_Timer_InitTimer(START_TIMER, 1000);
             }
             break;
 
-        case SubFindGoalState: // in the first state, replace this with correct names
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(500);
-            switch (ThisEvent.EventType) {
-                case TWO_KHZ_BEACON_DETECTED:
-                    nextState = SubGoalFoundState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
-            break;
-
-        case SubGoalFoundState:
-            Robot_LeftMotor(500);
-            Robot_RightMotor(500);
-            switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 1000);
-                        nextState = SubAiming;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
-                    break;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
-            break;
-
-        case SubAiming:
-
-            Robot_LeftMotor(0);
-            Robot_RightMotor(0);
-
-            switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        nextState = SubReturn;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
-                    break;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
-            break;
-
-        case SubShooting:
-
-            // Robot_LetBallsGo();
-            switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        nextState = SubReturn;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
-                    break;
-                case ES_NO_EVENT:
-                default: // all unhandled events pass the event back up to the next level
-                    break;
-            }
-            break;
-
-        case SubReturn:
-
-            Robot_LeftMotor(-500);
+        case SubTurnLeftState: // in the first state, replace this with correct names
             Robot_RightMotor(-500);
-
+            Robot_LeftMotor(500);
             switch (ThisEvent.EventType) {
-                case TWO_KHZ_BEACON_NOT_DETECTED:
-                    nextState = SubFindGoalState;
+                case ES_TIMEOUT:
+                    nextState = SubMoveIntoZoneState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
-                case BUMPER_DOWN:
-                    nextState = ExitState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = RETURNED;
-                    PostTopHSM(ThisEvent);
-                    break;
-                case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
             break;
 
-        case SubZone1To23:
-
+        case SubMoveIntoZoneState:
+            Robot_RightMotor(800);
+            Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        nextState = SubReturn;
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam & 0b1100) {
+                        ES_Timer_InitTimer(TIMER_TWO, 1000);
+                        nextState = SubRecenterState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
+                        break;
                     }
-                    break;
-                case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
+            break;
+            
+        case SubRecenterState:
+            Robot_RightMotor(-500);
+            Robot_LeftMotor(-500);
             break;
 
         default: // all unhandled states fall into here
@@ -254,9 +173,9 @@ ES_Event RunZone1SubHSM(ES_Event ThisEvent) {
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunZone1SubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunRightToLeftSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunZone1SubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunRightToLeftSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end
