@@ -36,6 +36,14 @@
  * PUBLIC TYPEDEFS                                                             *
  ******************************************************************************/
 
+typedef enum {
+    Unknown,
+    LeftField,
+    RightField,
+} Position;
+
+static Position initialPosition = RightField;
+static Position obstaclePosition = Unknown;
 
 /*******************************************************************************
  * PUBLIC FUNCTION PROTOTYPES                                                  *

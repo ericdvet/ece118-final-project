@@ -39,14 +39,16 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    Collision1State,
-    Collision2State,
+    SubReversalState,
+    SubBeaconLost1State,
+    SubBeaconLost2State,
 } CollisionLeftSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "Collision1State",
-    "Collision2State",
+    "SubReversalState",
+    "SubBeaconLost1State",
+    "SubBeaconLost2State",
 };
 
 
@@ -124,15 +126,75 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
                 // now put the machine into the actual initial state
                 //                Robot_LeftMotor(800);
                 //                Robot_RightMotor(800);
-                nextState = Collision1State;
+                nextState = SubReversalState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case Collision1State:
+        case SubReversalState:
             Robot_LeftMotor(-800);
             Robot_RightMotor(-800);
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_NOT_DETECTED:
+                    ES_Timer_InitTimer(START_TIMER, 250);
+                    nextState = SubBeaconLost1State;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+            break;
+
+
+        case SubBeaconLost1State:
+            Robot_LeftMotor(500);
+            Robot_RightMotor(-600);
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    nextState = SubReversalState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        ES_Timer_InitTimer(START_TIMER, 500);
+                        nextState = SubBeaconLost2State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubBeaconLost2State:
+            Robot_LeftMotor(-600);
+            Robot_RightMotor(500);
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    nextState = SubReversalState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        ES_Timer_InitTimer(START_TIMER, 500);
+                        nextState = SubBeaconLost1State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
 
         default: // all unhandled states fall into here
             break;

@@ -39,15 +39,19 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubTurnLeftState,
-    SubMoveIntoZoneState,
+    FindTapeState,
+    AlignToTape1State,
+    AlignToTape2State,
+    AlignToTape3State,
+    SubMoveForwardState,
     SubRecenterState,
 } RightToLeftSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubTurnLeftState",
-    "SubMoveIntoZoneState",
+    "FindTapeState",
+    "AlignToTapeState",
+    "SubMoveForwardState",
     "SubRecenterState",
 };
 
@@ -124,47 +128,88 @@ ES_Event RunRightToLeftSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                ES_Timer_InitTimer(START_TIMER, 1000);
-                nextState = SubTurnLeftState;
+                nextState = FindTapeState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case SubTurnLeftState: // in the first state, replace this with correct names
-            Robot_RightMotor(-500);
-            Robot_LeftMotor(500);
+        case FindTapeState: // in the first state, replace this with correct names
+            Robot_RightMotor(800);
+            Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
-                case ES_TIMEOUT:
-                    nextState = SubMoveIntoZoneState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
+                case TAPE_DETECTED:
+                    if (ThisEvent.EventParam & 0b0010) {
+                        nextState = AlignToTape1State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
                     break;
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
             break;
 
-        case SubMoveIntoZoneState:
+        case AlignToTape1State:
+            Robot_LeftMotor(-500);
             Robot_RightMotor(800);
-            Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
-                case BUMPER_DOWN:
-                    if (ThisEvent.EventParam & 0b1100) {
-                        ES_Timer_InitTimer(TIMER_TWO, 1000);
-                        nextState = SubRecenterState;
+                case TAPE_DETECTED:
+                    if (ThisEvent.EventParam & 0b1000) {
+                        nextState = AlignToTape2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
-                        break;
                     }
+                    break;
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
             break;
-            
+
+        case AlignToTape2State:
+            Robot_LeftMotor(700);
+            Robot_RightMotor(800);
+            switch (ThisEvent.EventType) {
+                case TAPE_DETECTED:
+                    if ((ThisEvent.EventParam & 0b1000) && (ThisEvent.EventParam & 0b0100)) {
+                        nextState = SubMoveForwardState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam & 1100) {
+                        ES_Timer_InitTimer(TIMER_TWO, 500);
+                        nextState = SubRecenterState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubMoveForwardState:
+            Robot_LeftMotor(800);
+            Robot_RightMotor(800);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam & 1100) {
+                        ES_Timer_InitTimer(TIMER_TWO, 500);
+                        nextState = SubRecenterState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
         case SubRecenterState:
-            Robot_RightMotor(-500);
             Robot_LeftMotor(-500);
+            Robot_RightMotor(-500);
             break;
 
         default: // all unhandled states fall into here

@@ -146,7 +146,7 @@ uint8_t Check_TapeSensor(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int currentTapeReading = Robot_ReadTapeSensor();
-//    printf("\n\t%d", currentTapeReading);
+    //    printf("\n\t%d", currentTapeReading);
 
     enum {
         TAPE, NO_TAPE
@@ -157,7 +157,7 @@ uint8_t Check_TapeSensor(void) {
     else
         currentTapeState = NO_TAPE;
 
-    //    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
+    //        printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
 
     if (currentTapeReading != lastTapeReading) { //event detected
         if (currentTapeState == TAPE)
@@ -199,7 +199,7 @@ uint8_t Check_PeakDetector2KHz(void) {
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
 
-//    printf("\n\t%d ", current2KHzPeak);
+    //    printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
         if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
@@ -273,7 +273,7 @@ uint8_t Check_PeakDetector15KHz(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
-//    printf("\n\t%d", current15KHzPeak);
+    //    printf("\n\t%d", current15KHzPeak);
 
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ

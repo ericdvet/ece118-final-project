@@ -22,6 +22,7 @@
 #include "LoadingSubHSM.h"
 #include "RightGameSubHSM.h"
 #include "RightToLeftSubHSM.h"
+#include "robot.h"
 
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -59,11 +60,11 @@ static const char *StateNames[] = {
     "RightToLeftState",
 };
 
-typedef enum {
-    Unknown,
-    LeftField,
-    RightField,
-} Position;
+//typedef enum {
+//    Unknown,
+//    LeftField,
+//    RightField,
+//} Position;
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
@@ -83,8 +84,10 @@ typedef enum {
 static TopHSMState_t CurrentState = InitPState; // <- change enum name to match ENUM
 static uint8_t MyPriority;
 
-static Position initialPosition = LeftField;
-static Position obstaclePosition = Unknown;
+//static Position initialPosition = RightField;
+//static Position obstaclePosition = Unknown;
+
+//static int rounds = 0;
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
@@ -150,10 +153,10 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                 // transition from the initial pseudo-state into the actual
                 // initial state
                 // Initialize all sub-state machines
-                InitLoadingSubHSM();
+                InitFindGoalSubHSM();
                 //                InitCollisionLeftSubHSM();
                 // now put the machine into the actual initial state
-                nextState = LoadingState;
+                nextState = FindGoalState;
                 //                nextState = CollisionLeftState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -161,13 +164,9 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             break;
 
         case OffState:
+            Robot_LeftMotor(0);
+            Robot_RightMotor(0);
             switch (ThisEvent.EventType) {
-                case BUMPER_DOWN:
-                    InitLoadingSubHSM();
-                    nextState = LoadingState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                    break;
                 case ES_NO_EVENT:
                 default:
                     break;
@@ -178,10 +177,12 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunLoadingSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
-                    InitFindGoalSubHSM();
-                    nextState = FindGoalState;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        InitFindGoalSubHSM();
+                        nextState = FindGoalState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
                     break;
                 case ES_NO_EVENT:
                 default:
@@ -196,6 +197,9 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     if (initialPosition == LeftField) {
                         InitLeftGameSubHSM();
                         nextState = LeftGameState;
+                    } else if (initialPosition == RightField) {
+                        InitRightGameSubHSM();
+                        nextState = RightGameState;
                     }
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -212,7 +216,6 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                 case BUMPER_DOWN:
                     if ((ThisEvent.EventParam & 0b0001) || (ThisEvent.EventParam & 0b0010)) {
                         InitLoadingSubHSM();
-                        // now put the machine into the actual initial state
                         nextState = LoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -234,18 +237,18 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunRightGameSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam & 0b0010) {
+                    if ((ThisEvent.EventParam & 0b0001) || (ThisEvent.EventParam & 0b0010)) {
                         InitLoadingSubHSM();
                         nextState = LoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
-                    //                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
-                    //                        InitCollisionLeftSubHSM();
-                    //                        nextState = CollisionLeftState;
-                    //                        makeTransition = TRUE;
-                    //                        ThisEvent.EventType = ES_NO_EVENT;
-                    //                    }
+                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
+                        InitCollisionLeftSubHSM();
+                        nextState = CollisionLeftState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
                     break;
                 case ES_NO_EVENT:
                 default:
@@ -258,8 +261,13 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
                     if (ThisEvent.EventParam & 0b0001) {
-                        InitLeftToRightSubHSM();
-                        nextState = LeftToRightState;
+                        if (initialPosition == LeftField) {
+                            InitLeftToRightSubHSM();
+                            nextState = LeftToRightState;
+                        } else if (initialPosition == RightField) {
+                            InitRightToLeftSubHSM();
+                            nextState = RightToLeftState;
+                        }
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
@@ -293,8 +301,8 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == TIMER_TWO) {
-                        InitLoadingSubHSM();
-                        nextState = LoadingState;
+//                        InitLoadingSubHSM();
+                        nextState = OffState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }

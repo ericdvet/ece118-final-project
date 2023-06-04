@@ -128,20 +128,25 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
                 Robot_Servo(1000, 1000);
 
                 // now put the machine into the actual initial state
-                nextState = EmptySubState;
+                nextState = PreGameSubState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
-                ES_Timer_InitTimer(START_TIMER, 5000);
+                ES_Timer_InitTimer(TIMER_TWO, 500);
             }
             break;
 
         case PreGameSubState: // in the first state, replace this with correct names
 
-            Robot_RightMotor(0);
-            Robot_LeftMotor(0);
+            if (initialPosition == RightField) {
+                Robot_RightMotor(500);
+                Robot_LeftMotor(800);
+            } else {
+                Robot_RightMotor(800);
+                Robot_LeftMotor(500);
+            }
 
             switch (ThisEvent.EventType) {
-                case BUMPER_DOWN:
+                case ES_TIMEOUT:
                     ES_Timer_InitTimer(START_TIMER, 3000);
                     nextState = EmptySubState;
                     makeTransition = TRUE;

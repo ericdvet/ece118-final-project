@@ -23,8 +23,8 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 
-#define RIGHT_MOTOR_FORWARD_VARIABLE 1.03
-#define RIGHT_MOTOR_REVERSE_VARIABLE 1.03
+#define RIGHT_MOTOR_FORWARD_VARIABLE 1
+#define RIGHT_MOTOR_REVERSE_VARIABLE 1
 
 // Bumper Ports
 #define BUMPER_PORT PORTZ   
@@ -134,10 +134,14 @@ void Robot_LeftMotor(int speed) {
     // Set H-Bridge direction
     if (speed < 0) {
         in1 = speed * -1; // Set speed to a positive value
+        if (in1 > 1000)
+            in1 = 1000;
         in2 = 0;
     } else {
         in1 = 0;
         in2 = speed;
+        if (in2 > 1000)
+            in2 = 1000;
     }
 
     PWM_SetDutyCycle(LEFT_IN_1, in1);
@@ -160,10 +164,14 @@ void Robot_RightMotor(int speed) {
 
     if (speed < 0) {
         in1 = speed * -1 * RIGHT_MOTOR_REVERSE_VARIABLE;
+        if (in1 > 1000)
+            in1 = 1000;
         in2 = 0;
     } else {
         in1 = 0;
         in2 = speed * RIGHT_MOTOR_FORWARD_VARIABLE;
+        if (in2 > 1000)
+            in2 = 1000;
     }
     
 //    printf("\n\tin1:%d in2: %d", in1, in2);
