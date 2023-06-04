@@ -26,7 +26,7 @@
 //#define USE_TATTLETALE
 
 //uncomment to supress the entry and exit events
-//#define SUPPRESS_EXIT_ENTRY_IN_TATTLE
+#define SUPPRESS_EXIT_ENTRY_IN_TATTLE
 
 /****************************************************************************/
 // Name/define the events of interest
@@ -42,7 +42,7 @@ typedef enum {
     ES_LISTEVENTS, /* used to list events in keyboard input, does not get posted to fsm*/
     ES_TIMEOUT, /* signals that the timer has expired */
     ES_TIMERACTIVE, /* signals that a timer has become active */
-    ES_TIMERSTOPPED, /* signals that a timer has stopped*/
+    ES_TIMERSTOPPED, /* signals that a timer has stopped*/ // 9
     /* User-defined events start here */
     BATTERY_CONNECTED,
     BATTERY_DISCONNECTED,
@@ -101,7 +101,7 @@ static const char *EventNames[] = {
 #define TIMER1_RESP_FUNC PostPeakDetectorService
 #define TIMER2_RESP_FUNC PostTapeSensorService
 #define TIMER3_RESP_FUNC PostTopHSM
-#define TIMER4_RESP_FUNC TIMER_UNUSED
+#define TIMER4_RESP_FUNC PostTopHSM
 #define TIMER5_RESP_FUNC TIMER_UNUSED
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED

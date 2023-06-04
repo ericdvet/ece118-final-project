@@ -6,7 +6,7 @@
 #include "Robot.h"
 #include "AD.h"
 
-//#define REAL_MAIN
+#define REAL_MAIN
 #ifdef REAL_MAIN
 void main(void)
 {

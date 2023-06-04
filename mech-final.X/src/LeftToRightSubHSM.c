@@ -124,7 +124,7 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                ES_Timer_InitTimer(START_TIMER, 1000);
+                ES_Timer_InitTimer(START_TIMER, 1100);
                 nextState = SubTurnLeftState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -146,12 +146,12 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubMoveIntoZoneState:
-            Robot_RightMotor(800);
-            Robot_LeftMotor(800);
+            Robot_RightMotor(500);
+            Robot_LeftMotor(500);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
                     if (ThisEvent.EventParam & 0b1100) {
-                        ES_Timer_InitTimer(TIMER_TWO, 1000);
+                        ES_Timer_InitTimer(TIMER_TWO, 3000);
                         nextState = SubRecenterState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -163,6 +163,7 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
             
         case SubRecenterState:
+//            ES_Timer_InitTimer(TIMER_TWO, 1000);
             Robot_RightMotor(-500);
             Robot_LeftMotor(-500);
             break;

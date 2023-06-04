@@ -154,6 +154,11 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
             break;
 
         case EmptySubState: // in the first state, replace this with correct names
+
+            Robot_RightMotor(0);
+            Robot_LeftMotor(0);
+            Robot_Servo(1000, 1000);
+
             switch (ThisEvent.EventType) {
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
@@ -166,6 +171,7 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
     } // end switch on Current State
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
+
         // recursively call the current state with an exit event
         RunLoadingSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;

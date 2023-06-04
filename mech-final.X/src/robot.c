@@ -23,8 +23,8 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 
-#define RIGHT_MOTOR_FORWARD_VARIABLE 0.98
-#define RIGHT_MOTOR_REVERSE_VARIABLE 1
+#define RIGHT_MOTOR_FORWARD_VARIABLE 1.03
+#define RIGHT_MOTOR_REVERSE_VARIABLE 1.03
 
 // Bumper Ports
 #define BUMPER_PORT PORTZ   
@@ -165,13 +165,19 @@ void Robot_RightMotor(int speed) {
         in1 = 0;
         in2 = speed * RIGHT_MOTOR_FORWARD_VARIABLE;
     }
+    
+//    printf("\n\tin1:%d in2: %d", in1, in2);
 
     PWM_SetDutyCycle(RIGHT_IN_1, in1);
     PWM_SetDutyCycle(RIGHT_IN_2, in2);
 }
 
 void Robot_FlyWheel(int speed) {
-    PWM_SetDutyCycle(FLYWHEEL_PIN, speed);
+    if (speed > 0) {
+        PWM_SetDutyCycle(FLYWHEEL_PIN, 800);
+    } else {
+        PWM_SetDutyCycle(FLYWHEEL_PIN, 0);
+    }
 }
 
 /**
@@ -310,7 +316,7 @@ void delay_us(unsigned int us) {
  * TEST HARNESS                                                                *
  ******************************************************************************/
 
-#define ROBOT_TEST
+//#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>
@@ -323,10 +329,10 @@ int main(void) {
     Robot_Init();
 
     printf("\nWelcome to evetha's robot.h test harness.  Compiled on %s %s.\n", __TIME__, __DATE__);
-//    Robot_Servo(2000, 1000);
-//    while (1) {
-//        Robot_FlyWheel(700);
-//    }
+    //    Robot_Servo(2000, 1000);
+    //    while (1) {
+    //        Robot_FlyWheel(700);
+    //    }
 
     //    while(1)
     //        Robot_SendPing(1);
@@ -337,6 +343,7 @@ int main(void) {
     //        printf("\n\t%d\t\n", AD_ReadADPin(PEAK_15KHZ_PIN));
     //    }
 
+    Robot_FlyWheel(700);
     while (1) {
         Robot_Servo(2000, 1000);
         delay_us(1000000);

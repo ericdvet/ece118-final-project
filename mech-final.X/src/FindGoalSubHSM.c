@@ -137,8 +137,8 @@ ES_Event RunFindGoalSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubFindGoalState: // in the first state, replace this with correct names
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(500);
+            Robot_LeftMotor(500);
+            Robot_RightMotor(-500);
             break;
 
         default: // all unhandled states fall into here
