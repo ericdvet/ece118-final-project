@@ -68,7 +68,6 @@ typedef enum {
     SubReturn23State,
     SubReturn23Reset1State,
     SubReturn23Reset2State,
-    SubReturn23Reset,
     SubReturnLoadingState,
     SubExitState,
 } LeftGameSubHSMState_t;
@@ -459,7 +458,7 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
                     //                    }
                     //                    break;
                 case ONE_FIVE_KHZ_BEACON_NOT_DETECTED:
-                    ES_Timer_InitTimer(START_TIMER, 400);
+                    ES_Timer_InitTimer(START_TIMER, 500);
                     nextState = SubShootBall1State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -475,7 +474,7 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 400);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = SubReloadBall2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -492,7 +491,7 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 400);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = SubShootBall2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -509,7 +508,7 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 400);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = SubReloadBall3State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -526,7 +525,7 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 400);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = SubShootBall3State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -688,11 +687,11 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
-                        //                        nextState = SubReturn1State;
-                        //                        makeTransition = TRUE;
-                        //                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
+//                    if (ThisEvent.EventParam & 0b0011) {
+//                        nextState = SubReturn1State;
+//                        makeTransition = TRUE;
+//                        ThisEvent.EventType = ES_NO_EVENT;
+//                    }
                     break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
@@ -819,9 +818,9 @@ ES_Event RunLeftGameSubHSM(ES_Event ThisEvent) {
                     break;
                 case TAPE_DETECTED:
                     if (ThisEvent.EventParam & 0b0011) {
-                        //                        nextState = SubReturn1State;
-                        //                        makeTransition = TRUE;
-                        //                        ThisEvent.EventType = ES_NO_EVENT;
+                        nextState = SubReturn23State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
                     }
                     break;
                 case ES_NO_EVENT:
