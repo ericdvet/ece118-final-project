@@ -147,12 +147,10 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
                     break;
             }
             break;
-            break;
-
 
         case SubBeaconLost1State:
-            Robot_LeftMotor(500);
-            Robot_RightMotor(-600);
+            Robot_LeftMotor(-800);
+            Robot_RightMotor(-500);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
                     nextState = SubReversalState;
@@ -174,8 +172,8 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubBeaconLost2State:
-            Robot_LeftMotor(-600);
-            Robot_RightMotor(500);
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(-800);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
                     nextState = SubReversalState;

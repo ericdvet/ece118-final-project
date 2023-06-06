@@ -127,6 +127,8 @@ unsigned int Robot_ReadPingSensor(void);
 
 void Robot_FlyWheel(int speed);
 
+int Robot_SideSwitch(void);
+
 
 #endif 
 

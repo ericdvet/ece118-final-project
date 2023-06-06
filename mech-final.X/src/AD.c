@@ -384,22 +384,22 @@ void __ISR(_ADC_VECTOR) ADCIntHandler(void)
         ADValues[CurPin] = (*(&ADC1BUF0+((CurPin) * 4))); //read in new set of values, pointer math from microchip
     }
     //calculate new filtered battery voltage
-    Filt_BatVoltage = (Filt_BatVoltage * KEEP_FILT + AD_ReadADPin(BAT_VOLTAGE_MONITOR) * ADD_FILT) >> SHIFT_FILT;
-
-    SampleCount++;
-    if (SampleCount > PointsPerBatSamples) {//if sample time has passed
-        PrevFilt_BatVoltage = CurFilt_BatVoltage;
-        CurFilt_BatVoltage = Filt_BatVoltage;
-        SampleCount = 0;
-        //check for battery undervoltage check
-        if ((CurFilt_BatVoltage <= BAT_VOLTAGE_LOCKOUT) && (PrevFilt_BatVoltage <= BAT_VOLTAGE_LOCKOUT) && (AD_ReadADPin(BAT_VOLTAGE_MONITOR) > BAT_VOLTAGE_NO_BAT)) {
-            BOARD_End();
-            while (1) {
-                printf("Battery is undervoltage with reading %d, Going to sleep\r\n", AD_ReadADPin(BAT_VOLTAGE_MONITOR));
-                while (!IsTransmitEmpty());
-            }
-        }
-    }
+//    Filt_BatVoltage = (Filt_BatVoltage * KEEP_FILT + AD_ReadADPin(BAT_VOLTAGE_MONITOR) * ADD_FILT) >> SHIFT_FILT;
+//
+//    SampleCount++;
+//    if (SampleCount > PointsPerBatSamples) {//if sample time has passed
+//        PrevFilt_BatVoltage = CurFilt_BatVoltage;
+//        CurFilt_BatVoltage = Filt_BatVoltage;
+//        SampleCount = 0;
+//        //check for battery undervoltage check
+//        if ((CurFilt_BatVoltage <= BAT_VOLTAGE_LOCKOUT) && (PrevFilt_BatVoltage <= BAT_VOLTAGE_LOCKOUT) && (AD_ReadADPin(BAT_VOLTAGE_MONITOR) > BAT_VOLTAGE_NO_BAT)) {
+//            BOARD_End();
+//            while (1) {
+//                printf("Battery is undervoltage with reading %d, Going to sleep\r\n", AD_ReadADPin(BAT_VOLTAGE_MONITOR));
+//                while (!IsTransmitEmpty());
+//            }
+//        }
+//    }
     //if pins are changed add pins
     if (PinsToAdd | PinsToRemove) {
         AD_SetPins();

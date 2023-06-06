@@ -137,13 +137,14 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
         case PreGameSubState: // in the first state, replace this with correct names
 
-            if (initialPosition == RightField) {
-                Robot_RightMotor(500);
-                Robot_LeftMotor(800);
-            } else {
-                Robot_RightMotor(800);
-                Robot_LeftMotor(500);
-            }
+//            printf("Initial Position: %d", initialPosition);
+//            if (initialPosition == RightField) {
+//                Robot_RightMotor(500);
+//                Robot_LeftMotor(800);
+//            } else {
+//                Robot_RightMotor(800);
+//                Robot_LeftMotor(500);
+//            }
 
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:

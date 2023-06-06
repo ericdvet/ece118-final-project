@@ -40,6 +40,7 @@
 typedef enum {
     InitPSubState,
     SubFindGoal1State,
+    SubFindGoal2State,
     SubReverseState,
     SubForwardState,
     ExitState,
@@ -129,10 +130,13 @@ ES_Event RunFindGoalSubHSM(ES_Event ThisEvent) {
                 // now put the machine into the actual initial state
                 //                Robot_LeftMotor(800);
                 //                Robot_RightMotor(800);
-                nextState = SubFindGoal1State;
+                if (initialPosition == RightField)
+                    nextState = SubFindGoal1State;
+                else
+                    nextState = SubFindGoal2State;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
-                ES_Timer_InitTimer(START_TIMER, 3000);
+                ES_Timer_InitTimer(TIMER_TWO, 5000);
             }
             break;
 
@@ -141,13 +145,20 @@ ES_Event RunFindGoalSubHSM(ES_Event ThisEvent) {
             Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 500);
-                        nextState = SubReverseState;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
+                    ES_Timer_InitTimer(START_TIMER, 500);
+                    nextState = SubReverseState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                    //                case BUMPER_DOWN:
+                    //                    if (ThisEvent.EventParam & 0b1100)
+                    //                        nextState = SubReverseState;
+                    //                    else
+                    //                        nextState = SubForwardState;
+                    //                    ES_Timer_InitTimer(START_TIMER, 500);
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
@@ -159,13 +170,45 @@ ES_Event RunFindGoalSubHSM(ES_Event ThisEvent) {
             Robot_RightMotor(-800);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 500);
-                        nextState = SubForwardState;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
+                    ES_Timer_InitTimer(START_TIMER, 5000);
+                    nextState = SubFindGoal2State;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                    //                case BUMPER_DOWN:
+                    //                    if (ThisEvent.EventParam & 0b1100)
+                    //                        nextState = SubReverseState;
+                    //                    else
+                    //                        nextState = SubForwardState;
+                    //                    ES_Timer_InitTimer(START_TIMER, 500);
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    break;
+                case ES_NO_EVENT:
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case SubFindGoal2State: // in the first state, replace this with correct names
+            Robot_LeftMotor(800);
+            Robot_RightMotor(-800);
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    ES_Timer_InitTimer(START_TIMER, 500);
+                    nextState = SubForwardState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                    //                case BUMPER_DOWN:
+                    //                    if (ThisEvent.EventParam & 0b1100)
+                    //                        nextState = SubReverseState;
+                    //                    else
+                    //                        nextState = SubForwardState;
+                    //                    ES_Timer_InitTimer(START_TIMER, 500);
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;
@@ -177,13 +220,20 @@ ES_Event RunFindGoalSubHSM(ES_Event ThisEvent) {
             Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 3000);
-                        nextState = SubFindGoal1State;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
+                    ES_Timer_InitTimer(START_TIMER, 5000);
+                    nextState = SubFindGoal1State;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                     break;
+                    //                case BUMPER_DOWN:
+                    //                    if (ThisEvent.EventParam & 0b1100)
+                    //                        nextState = SubReverseState;
+                    //                    else
+                    //                        nextState = SubForwardState;
+                    //                    ES_Timer_InitTimer(START_TIMER, 500);
+                    //                    makeTransition = TRUE;
+                    //                    ThisEvent.EventType = ES_NO_EVENT;
+                    //                    break;
                 case ES_NO_EVENT:
                 default: // all unhandled events pass the event back up to the next level
                     break;

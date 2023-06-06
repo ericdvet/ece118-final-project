@@ -28,6 +28,7 @@ build/default/production/_ext/1548841071/TopHSM.o: \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LoadingSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/RightGameSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/RightToLeftSubHSM.h \
+ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LeftPositionSubHSM.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/robot.h \
  C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/BOARD.h
 
@@ -86,6 +87,8 @@ C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/RightGameSubHSM.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/RightToLeftSubHSM.h:
+
+C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/LeftPositionSubHSM.h:
 
 C:/UCSC/2022-2023/Spring\ 2023/ECE\ 118/mech-final-project/mech-final.X/include/robot.h:
 

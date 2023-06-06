@@ -31,7 +31,7 @@
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "TopHSM.h"
-#include "LeftToRightSubHSM.h"
+#include "LeftPositionSubHSM.h"
 #include "robot.h"
 
 /*******************************************************************************
@@ -39,18 +39,21 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
+    FindWallState,
     FindTapeState,
     AlignToTape1State,
     AlignToTape2State,
     AlignToTape3State,
     SubMoveForwardState,
     SubRecenterState,
-} LeftToRightSubHSMState_t;
+    SubFindGoalState,
+} LeftPositionSubHSMState_t;
 
 static const char *StateNames[] = {
     "InitPSubState",
-    "SubTurnLeftState",
-    "SubMoveIntoZoneState",
+    "FindTapeState",
+    "AlignToTapeState",
+    "SubMoveForwardState",
     "SubRecenterState",
 };
 
@@ -68,7 +71,7 @@ static const char *StateNames[] = {
 /* You will need MyPriority and the state variable; you may need others as well.
  * The type of state variable should match that of enum in header file. */
 
-static LeftToRightSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
+static LeftPositionSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
 
@@ -86,11 +89,11 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitLeftToRightSubHSM(void) {
+uint8_t InitLeftPositionSubHSM(void) {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunLeftToRightSubHSM(INIT_EVENT);
+    returnEvent = RunLeftPositionSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -112,9 +115,9 @@ uint8_t InitLeftToRightSubHSM(void) {
  *       not consumed as these need to pass pack to the higher level state machine.
  * @author J. Edward Carryer, 2011.10.23 19:25
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
+ES_Event RunLeftPositionSubHSM(ES_Event ThisEvent) {
     uint8_t makeTransition = FALSE; // use to flag transition
-    LeftToRightSubHSMState_t nextState; // <- change type to correct enum
+    LeftPositionSubHSMState_t nextState; // <- change type to correct enum
 
     ES_Tattle(); // trace call stack
 
@@ -127,19 +130,32 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
                 // initial state
 
                 // now put the machine into the actual initial state
-                ES_Timer_InitTimer(START_TIMER, 1100);
-                nextState = FindTapeState;
+                nextState = FindWallState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
             break;
 
-        case FindTapeState: // in the first state, replace this with correct names
+        case FindWallState:
+            Robot_RightMotor(-800);
+            Robot_LeftMotor(-800);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                        nextState = FindTapeState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
+        case FindTapeState:
             Robot_RightMotor(800);
             Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0001) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = AlignToTape1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -151,11 +167,11 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
 
         case AlignToTape1State:
-            Robot_LeftMotor(800);
-            Robot_RightMotor(-500);
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0100) {
+                    if (ThisEvent.EventParam & 0b1000) {
                         nextState = AlignToTape2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -167,18 +183,18 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
 
         case AlignToTape2State:
-            Robot_LeftMotor(800);
-            Robot_RightMotor(700);
+            Robot_LeftMotor(700);
+            Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if ((ThisEvent.EventParam & 0b0100) && (ThisEvent.EventParam & 0b0001)) {
+                    if ((ThisEvent.EventParam & 0b1000) && (ThisEvent.EventParam & 0b0010)) {
                         nextState = SubMoveForwardState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
                     break;
                 case BUMPER_DOWN:
-                    ES_Timer_InitTimer(TIMER_TWO, 500);
+                    ES_Timer_InitTimer(START_TIMER, 500);
                     nextState = SubRecenterState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -193,8 +209,8 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             Robot_RightMotor(800);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    ES_Timer_InitTimer(TIMER_TWO, 500);
-                    nextState = SubRecenterState;
+                    ES_Timer_InitTimer(START_TIMER, 500);
+                    nextState = SubFindGoalState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
@@ -204,19 +220,41 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubRecenterState:
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(-500);
+            Robot_LeftMotor(0);
+            Robot_RightMotor(0);
+            switch (ThisEvent.EventType) {
+                case ES_TIMEOUT:
+                    if (ThisEvent.EventParam == START_TIMER) {
+                        //                        ES_Timer_InitTimer(START_TIMER, 500);
+                        nextState = SubFindGoalState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
             break;
 
+        case SubFindGoalState:
+            Robot_LeftMotor(800);
+            Robot_RightMotor(-800);
+            switch (ThisEvent.EventType) {
+                case TWO_KHZ_BEACON_DETECTED:
+                    ES_Timer_InitTimer(TIMER_TWO, 1000);
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
         default: // all unhandled states fall into here
             break;
     } // end switch on Current State
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunLeftToRightSubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunLeftPositionSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunLeftToRightSubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunLeftPositionSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end

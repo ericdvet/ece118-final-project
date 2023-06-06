@@ -24,10 +24,12 @@
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 
-#define BUFFER_SIZE 1
+#define BUFFER_SIZE_TWO 1
+#define BUFFER_SIZE_ONE_FIVE 2
 
 #define HYSTERSIS_BOUND_TWO 625
-#define HYSTERSIS_BOUND_ONE_FIVE 0
+#define UPPER_HYSTERSIS_BOUND_ONE_FIVE 700
+#define LOWER_HYSTERSIS_BOUND_ONE_FIVE 600
 
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
@@ -72,13 +74,18 @@ static int lastBumperLevel;
 
 static int lastTapeReading;
 
-typedef struct CircularBuffer {
+typedef struct CircularBufferTwo {
     int head;
-    unsigned int buffer [BUFFER_SIZE];
-} CircularBuffer;
+    unsigned int buffer [BUFFER_SIZE_TWO];
+} CircularBufferTwo;
 
-CircularBuffer peakBuffer2KHz;
-CircularBuffer peakBuffer15KHz;
+typedef struct CircularBufferOneFive {
+    int head;
+    unsigned int buffer [BUFFER_SIZE_ONE_FIVE];
+} CircularBufferOneFive;
+
+CircularBufferTwo peakBuffer2KHz;
+CircularBufferOneFive peakBuffer15KHz;
 
 static enum {
     BEACON_DETECTED_2KHZ, BEACON_NOT_DETECTED_2KHZ
@@ -157,7 +164,7 @@ uint8_t Check_TapeSensor(void) {
     else
         currentTapeState = NO_TAPE;
 
-    //        printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
+    //    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
 
     if (currentTapeReading != lastTapeReading) { //event detected
         if (currentTapeState == TAPE)
@@ -199,15 +206,15 @@ uint8_t Check_PeakDetector2KHz(void) {
     else
         current2KHzBeaconState = BEACON_NOT_DETECTED_2KHZ;
 
-    //    printf("\n\t%d ", current2KHzPeak);
+    //            printf("\n\t%d ", current2KHzPeak);
 
     if (current2KHzBeaconState != last2KHzBeaconState) { //event detected
         if (current2KHzBeaconState == BEACON_DETECTED_2KHZ) {
             thisEvent.EventType = TWO_KHZ_BEACON_DETECTED;
-            LED_OnBank(LED_BANK2, 7);
+            //            LED_OnBank(LED_BANK2, 7);
         } else {
             thisEvent.EventType = TWO_KHZ_BEACON_NOT_DETECTED;
-            LED_OffBank(LED_BANK2, 7);
+            //            LED_OffBank(LED_BANK2, 7);
         }
         thisEvent.EventParam = current2KHzPeak;
         returnVal = TRUE;
@@ -228,7 +235,7 @@ uint8_t Check_PeakDetector2KHz(void) {
  */
 void InitBuffer2KHz(void) {
     peakBuffer2KHz.head = 0;
-    for (int i = 0; i < BUFFER_SIZE; i++)
+    for (int i = 0; i < BUFFER_SIZE_TWO; i++)
         peakBuffer2KHz.buffer[i] = 0;
 }
 
@@ -244,18 +251,18 @@ unsigned int filterPeak2KHz(unsigned int peakReading) {
     newHead = peakBuffer2KHz.head + 1;
     sum = 0;
 
-    if (newHead >= BUFFER_SIZE) {
+    if (newHead >= BUFFER_SIZE_TWO) {
         newHead = 0;
     }
 
     peakBuffer2KHz.buffer[peakBuffer2KHz.head] = peakReading;
     peakBuffer2KHz.head = newHead;
 
-    for (int i = 0; i < BUFFER_SIZE; i++) {
+    for (int i = 0; i < BUFFER_SIZE_TWO; i++) {
         sum += peakBuffer2KHz.buffer[i];
     }
 
-    return (sum / BUFFER_SIZE);
+    return (sum / BUFFER_SIZE_TWO);
 }
 
 /**
@@ -273,16 +280,18 @@ uint8_t Check_PeakDetector15KHz(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
-    //    printf("\n\t%d", current15KHzPeak);
+//    printf("\n\t%d", current15KHzPeak);
 
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ
     } current15KHzBeaconState;
 
-    if (current15KHzPeak > HYSTERSIS_BOUND_ONE_FIVE)
+    if (current15KHzPeak > UPPER_HYSTERSIS_BOUND_ONE_FIVE)
         current15KHzBeaconState = BEACON_DETECTED_15KHZ;
-    else
+    else if (current15KHzPeak < LOWER_HYSTERSIS_BOUND_ONE_FIVE)
         current15KHzBeaconState = BEACON_NOT_DETECTED_15KHZ;
+    else
+        current15KHzBeaconState = last15KHzBeaconState;
 
 
     if (current15KHzBeaconState != last15KHzBeaconState) { //event detected
@@ -312,7 +321,7 @@ uint8_t Check_PeakDetector15KHz(void) {
  */
 void InitBuffer15KHz(void) {
     peakBuffer15KHz.head = 0;
-    for (int i = 0; i < BUFFER_SIZE; i++)
+    for (int i = 0; i < BUFFER_SIZE_ONE_FIVE; i++)
         peakBuffer15KHz.buffer[i] = 0;
 }
 
@@ -328,18 +337,18 @@ unsigned int filterPeak15KHz(unsigned int peakReading) {
     newHead = peakBuffer15KHz.head + 1;
     sum = 0;
 
-    if (newHead >= BUFFER_SIZE) {
+    if (newHead >= BUFFER_SIZE_ONE_FIVE) {
         newHead = 0;
     }
 
     peakBuffer15KHz.buffer[peakBuffer15KHz.head] = peakReading;
     peakBuffer15KHz.head = newHead;
 
-    for (int i = 0; i < BUFFER_SIZE; i++) {
+    for (int i = 0; i < BUFFER_SIZE_ONE_FIVE; i++) {
         sum += peakBuffer15KHz.buffer[i];
     }
 
-    return (sum / BUFFER_SIZE);
+    return (sum / BUFFER_SIZE_ONE_FIVE);
 }
 
 /* 

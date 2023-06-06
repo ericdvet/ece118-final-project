@@ -33,6 +33,7 @@
 #include "TopHSM.h"
 #include "RightGameSubHSM.h"
 #include "robot.h"
+#include "LED.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -154,8 +155,10 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                 // now put the machine into the actual initial state
                 //                Robot_LeftMotor(-500);
                 //                Robot_RightMotor(500);
-                ES_Timer_InitTimer(FUCK_UP_TIMER, 5000);
+//                ES_Timer_InitTimer(FUCK_UP_TIMER, 5000);
+//                ES_Timer_InitTimer(START_TIMER, 1000);
                 nextState = SubLoadingZoneState;
+//                nextState = SubPoweringUpState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
             }
@@ -221,7 +224,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     break;
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == FUCK_UP_TIMER) {
-//                        ES_Timer_InitTimer(START_TIMER, 250);
+                        ES_Timer_InitTimer(START_TIMER, 250);
                         nextState = Sub1Zone2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -238,9 +241,10 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             //            Robot_RightMotor(-500);
             Robot_LeftMotor(800);
             Robot_RightMotor(500);
+            LED_OnBank(LED_BANK2, 7);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b1000) {
+                    if (ThisEvent.EventParam & 0b1100) {
                         ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = Sub1Zone0State;
                         makeTransition = TRUE;
@@ -256,6 +260,12 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     if (ThisEvent.EventParam == START_TIMER) {
                         ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = Sub23BeaconLost2State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    if (ThisEvent.EventParam == FUCK_UP_TIMER) {
+                        ES_Timer_InitTimer(START_TIMER, 250);
+                        nextState = Sub1Zone2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
@@ -271,10 +281,11 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             //            Robot_RightMotor(500);
             Robot_LeftMotor(500);
             Robot_RightMotor(800);
+            LED_OffBank(LED_BANK2, 7);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
                     if (ThisEvent.EventParam & 0b1000) {
-                        ES_Timer_InitTimer(START_TIMER, 250);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = Sub1Zone0State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -289,6 +300,12 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     if (ThisEvent.EventParam == START_TIMER) {
                         ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = Sub23BeaconLost2State;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    if (ThisEvent.EventParam == FUCK_UP_TIMER) {
+                        ES_Timer_InitTimer(START_TIMER, 250);
+                        nextState = Sub1Zone2State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
@@ -315,7 +332,6 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                 default: // all unhandled events pass the event back up to the next level
                     break;
             }
-            break;
             break;
 
         case Sub1Zone1State:
@@ -365,8 +381,8 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubAimingState:
-            Robot_LeftMotor(-500);
-            Robot_RightMotor(500);
+            Robot_LeftMotor(500);
+            Robot_RightMotor(-500);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     ES_Timer_InitTimer(START_TIMER, 1000);
@@ -403,7 +419,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 400);
+                        ES_Timer_InitTimer(START_TIMER, 500);
                         nextState = SubShootBall1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -500,8 +516,8 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubReorientState:
-            Robot_LeftMotor(500);
-            Robot_RightMotor(-500);
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(500);
             Robot_FlyWheel(0);
             Robot_Servo(1000, 1000);
             switch (ThisEvent.EventType) {
