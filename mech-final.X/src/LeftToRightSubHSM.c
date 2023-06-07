@@ -139,7 +139,7 @@ ES_Event RunLeftToRightSubHSM(ES_Event ThisEvent) {
             Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0001) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = AlignToTape1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;

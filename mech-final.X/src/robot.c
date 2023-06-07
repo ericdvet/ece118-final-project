@@ -336,7 +336,7 @@ void delay_us(unsigned int us) {
  * TEST HARNESS                                                                *
  ******************************************************************************/
 
-//#define ROBOT_TEST
+#define ROBOT_TEST
 #ifdef ROBOT_TEST
 
 #include <stdio.h>
@@ -366,21 +366,21 @@ int main(void) {
     //    while(1)
     //        printf("\n\t%d", Robot_SideSwitch());
 
-    while (1) {
-        if (Robot_Read15KHzPeakDetector() >= 700) {
-            LED_OnBank(LED_BANK3, 7);
-        } else {
-            LED_OffBank(LED_BANK3, 7);
-        }
-    }
+    //    while (1) {
+    //        if (Robot_Read15KHzPeakDetector() >= 700) {
+    //            LED_OnBank(LED_BANK3, 7);
+    //        } else {
+    //            LED_OffBank(LED_BANK3, 7);
+    //        }
+    //    }
 
-    Robot_FlyWheel(700);
-    while (1) {
-        Robot_Servo(2000, 1000);
-        delay_us(1000000);
-        Robot_Servo(1000, 2000);
-        delay_us(1000000);
-    }
+    //    Robot_FlyWheel(700);
+    //    while (1) {
+    //        Robot_Servo(2000, 1000);
+    //        delay_us(1000000);
+    //        Robot_Servo(1000, 2000);
+    //        delay_us(1000000);
+    //    }
 
     //    while (Robot_ReadPingSensor() > 500)
     //    AD_AddPins(AD_PORTV3);

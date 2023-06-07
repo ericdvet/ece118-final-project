@@ -155,7 +155,7 @@ ES_Event RunLeftPositionSubHSM(ES_Event ThisEvent) {
             Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0010) {
+                    if (ThisEvent.EventParam & 0b0001) {
                         nextState = AlignToTape1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -220,8 +220,8 @@ ES_Event RunLeftPositionSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubRecenterState:
-            Robot_LeftMotor(0);
-            Robot_RightMotor(0);
+            Robot_LeftMotor(-500);
+            Robot_RightMotor(-500 );
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {

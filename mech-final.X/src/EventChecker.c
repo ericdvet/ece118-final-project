@@ -27,7 +27,7 @@
 #define BUFFER_SIZE_TWO 1
 #define BUFFER_SIZE_ONE_FIVE 2
 
-#define HYSTERSIS_BOUND_TWO 625
+#define HYSTERSIS_BOUND_TWO 650
 #define UPPER_HYSTERSIS_BOUND_ONE_FIVE 700
 #define LOWER_HYSTERSIS_BOUND_ONE_FIVE 600
 
@@ -153,7 +153,7 @@ uint8_t Check_TapeSensor(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int currentTapeReading = Robot_ReadTapeSensor();
-    //    printf("\n\t%d", currentTapeReading);
+//    printf("\n\t%d", currentTapeReading);
 
     enum {
         TAPE, NO_TAPE
@@ -164,7 +164,7 @@ uint8_t Check_TapeSensor(void) {
     else
         currentTapeState = NO_TAPE;
 
-    //    printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
+    //        printf("\n\tCurrent Tape Reading: %d", currentTapeReading);
 
     if (currentTapeReading != lastTapeReading) { //event detected
         if (currentTapeState == TAPE)
@@ -280,7 +280,7 @@ uint8_t Check_PeakDetector15KHz(void) {
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
     int current15KHzPeak = filterPeak15KHz(Robot_Read15KHzPeakDetector());
-//    printf("\n\t%d", current15KHzPeak);
+    //    printf("\n\t%d", current15KHzPeak);
 
     enum {
         BEACON_DETECTED_15KHZ, BEACON_NOT_DETECTED_15KHZ

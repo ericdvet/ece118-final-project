@@ -148,7 +148,7 @@ ES_Event RunLoadingSubHSM(ES_Event ThisEvent) {
 
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
-                    ES_Timer_InitTimer(START_TIMER, 3000);
+                    ES_Timer_InitTimer(START_TIMER, 2000);
                     nextState = EmptySubState;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;

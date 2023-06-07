@@ -15,7 +15,8 @@
 #include "ES_Framework.h"
 #include "TopHSM.h"
 
-#include "CollisionLeftSubHSM.h" //#include all sub state machines called
+#include "CollisionLeftSubHSM.h"
+#include "CollisionRightSubHSM.h" //#include all sub state machines called
 #include "FindGoalSubHSM.h"
 #include "LeftGameSubHSM.h"
 #include "LeftToRightSubHSM.h"
@@ -203,21 +204,42 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             else
                 initialPosition = LeftField;
             //            printf("\n\tRobot_SideSwitch() = %d", Robot_SideSwitch());
-            currentPosition = initialPosition;
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_DETECTED:
                     if (currentPosition == LeftField) {
-                        InitLeftPositionSubHSM();
-                        nextState = LeftPositionState;
-                        //                        InitLeftGameSubHSM();
-                        //                        nextState = LeftGameState;
-                        //                        InitRightToLeftSubHSM();
-                        //                        nextState = RightToLeftState;
+                        if (obstaclePosition == LeftField) {
+                            InitLeftToRightSubHSM();
+                            nextState = LeftToRightState;
+                        } else {
+                            InitLeftPositionSubHSM();
+                            nextState = LeftPositionState;
+                        }
                     } else if (currentPosition == RightField) {
-                        InitRightPositionSubHSM();
-                        nextState = RightPositionState;
-                        //                        InitRightGameSubHSM();
-                        //                        nextState = RightGameState;
+                        if (obstaclePosition == RightField) {
+                            InitRightToLeftSubHSM();
+                            nextState = RightToLeftState;
+                        } else {
+                            InitRightPositionSubHSM();
+                            nextState = RightPositionState;
+                        }
+                    } else if (currentPosition == Unknown) {
+                        if (initialPosition == LeftField) {
+                            if (obstaclePosition == LeftField) {
+                                InitLeftToRightSubHSM();
+                                nextState = LeftToRightState;
+                            } else {
+                                InitLeftPositionSubHSM();
+                                nextState = LeftPositionState;
+                            }
+                        } else if (initialPosition == RightField) {
+                            if (obstaclePosition == RightField) {
+                                InitRightToLeftSubHSM();
+                                nextState = RightToLeftState;
+                            } else {
+                                InitRightPositionSubHSM();
+                                nextState = RightPositionState;
+                            }
+                        }
                     }
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -277,7 +299,8 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
                     //                        makeTransition = TRUE;
                     //                        ThisEvent.EventType = ES_NO_EVENT;
                     //                    }
-                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
+                    if (ThisEvent.EventParam & 0b1100) {
+                        obstaclePosition = LeftField;
                         InitCollisionLeftSubHSM();
                         nextState = CollisionLeftState;
                         makeTransition = TRUE;
@@ -306,20 +329,21 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunRightGameSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-//                    if ((ThisEvent.EventParam & 0b0001) || (ThisEvent.EventParam & 0b0010)) {
-//                        if (initialPosition == LeftField) {
-//                            InitRightToLeftSubHSM();
-//                            nextState = RightToLeftState;
-//                        } else if (initialPosition == RightField) {
-//                            InitLoadingSubHSM();
-//                            nextState = LoadingState;
-//                        }
-//                        makeTransition = TRUE;
-//                        ThisEvent.EventType = ES_NO_EVENT;
-//                    }
-                    if ((ThisEvent.EventParam & 0b1000) || (ThisEvent.EventParam & 0b0100)) {
-                        InitCollisionLeftSubHSM();
-                        nextState = CollisionLeftState;
+                    //                    if ((ThisEvent.EventParam & 0b0001) || (ThisEvent.EventParam & 0b0010)) {
+                    //                        if (initialPosition == LeftField) {
+                    //                            InitRightToLeftSubHSM();
+                    //                            nextState = RightToLeftState;
+                    //                        } else if (initialPosition == RightField) {
+                    //                            InitLoadingSubHSM();
+                    //                            nextState = LoadingState;
+                    //                        }
+                    //                        makeTransition = TRUE;
+                    //                        ThisEvent.EventType = ES_NO_EVENT;
+                    //                    }
+                    if (ThisEvent.EventParam & 0b1100) {
+                        obstaclePosition = RightField;
+                        InitCollisionRightSubHSM();
+                        nextState = CollisionRightState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
@@ -346,14 +370,26 @@ ES_Event RunTopHSM(ES_Event ThisEvent) {
             ThisEvent = RunCollisionLeftSubHSM(ThisEvent);
             switch (ThisEvent.EventType) {
                 case BUMPER_DOWN:
-                    if (ThisEvent.EventParam & 0b0001) {
-                        if (initialPosition == LeftField) {
-                            InitLeftToRightSubHSM();
-                            nextState = LeftToRightState;
-                        } else if (initialPosition == RightField) {
-                            InitRightToLeftSubHSM();
-                            nextState = RightToLeftState;
-                        }
+                    if (ThisEvent.EventParam & 0b0011) {
+                        InitLeftToRightSubHSM();
+                        nextState = LeftToRightState;
+                        makeTransition = TRUE;
+                        ThisEvent.EventType = ES_NO_EVENT;
+                    }
+                    break;
+                case ES_NO_EVENT:
+                default:
+                    break;
+            }
+            break;
+
+        case CollisionRightState:
+            ThisEvent = RunCollisionRightSubHSM(ThisEvent);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    if (ThisEvent.EventParam & 0b0011) {
+                        InitRightToLeftSubHSM();
+                        nextState = RightToLeftState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }

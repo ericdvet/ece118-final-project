@@ -181,7 +181,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                         nextState = SubLoadingTo23BufferState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
-                        ES_Timer_InitTimer(TIMER_TWO, 250);
+                        ES_Timer_InitTimer(TIMER_TWO, 400);
                     }
                     break;
                 case ES_TIMEOUT:
@@ -292,7 +292,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             LED_OffBank(LED_BANK2, 7);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b1000) {
+                    if (ThisEvent.EventParam & 0b1100) {
                         ES_Timer_InitTimer(START_TIMER, 600);
                         nextState = Sub1Zone0State;
                         makeTransition = TRUE;
@@ -394,7 +394,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     //                    ES_Timer_InitTimer(START_TIMER, 100);
-                    ES_Timer_InitTimer(START_TIMER, 150);
+                    ES_Timer_InitTimer(START_TIMER, 125);
                     nextState = SubAiming2State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -410,7 +410,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
-                        ES_Timer_InitTimer(START_TIMER, 5000);
+                        ES_Timer_InitTimer(START_TIMER, 2000);
                         nextState = SubPoweringUpState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -570,10 +570,10 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubReturn23State:
-            Robot_FlyWheel(0);
-            Robot_Servo(1000, 1000);
             Robot_LeftMotor(-800);
             Robot_RightMotor(-700);
+//            Robot_FlyWheel(0);
+//            Robot_Servo(1000, 1000);
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     ES_Timer_InitTimer(START_TIMER, 250);
@@ -582,7 +582,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturn1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -620,7 +620,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturn1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -658,14 +658,14 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturn1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
                     }
                     break;
                 case BUMPER_DOWN:
-                    ES_Timer_InitTimer(START_TIMER, 500);
+                    ES_Timer_InitTimer(START_TIMER, 1000);
                     nextState = SubReturn23Reset1State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
@@ -678,7 +678,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
 
         case SubReturn23Reset1State:
             Robot_LeftMotor(800);
-            Robot_RightMotor(800);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
@@ -712,7 +712,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturnLoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -750,7 +750,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturnLoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -788,7 +788,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturnLoadingState;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
@@ -808,7 +808,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
 
         case SubReturn1Reset1State:
             Robot_LeftMotor(800);
-            Robot_RightMotor(800);
+            Robot_RightMotor(500);
             switch (ThisEvent.EventType) {
                 case ES_TIMEOUT:
                     if (ThisEvent.EventParam == START_TIMER) {
@@ -819,7 +819,7 @@ ES_Event RunRightGameSubHSM(ES_Event ThisEvent) {
                     }
                     break;
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0011) {
+                    if (ThisEvent.EventParam & 0b0010) {
                         nextState = SubReturn23State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;

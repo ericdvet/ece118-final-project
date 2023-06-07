@@ -123,9 +123,7 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
                 // transition from the initial pseudo-state into the actual
                 // initial state
 
-                // now put the machine into the actual initial state
-                //                Robot_LeftMotor(800);
-                //                Robot_RightMotor(800);
+                //                now put the machine into the actual initial state
                 nextState = SubReversalState;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -133,12 +131,28 @@ ES_Event RunCollisionLeftSubHSM(ES_Event ThisEvent) {
             break;
 
         case SubReversalState:
+            //            if (currentPosition == LeftField) {
+            //                Robot_LeftMotor(-800);
+            //                Robot_RightMotor(-700);
+            //            } else if (currentPosition == RightField) {
+            //                Robot_LeftMotor(-700);
+            //                Robot_RightMotor(-800);
+            //            } else if (currentPosition == Unknown) {
+            //                if (initialPosition == LeftField) {
+            //                    Robot_LeftMotor(-800);
+            //                    Robot_RightMotor(-700);
+            //                } else if (initialPosition == RightField) {
+            //                    Robot_LeftMotor(-700);
+            //                    Robot_RightMotor(-800);
+            //                }
+            //            }
             Robot_LeftMotor(-800);
-            Robot_RightMotor(-800);
+            Robot_RightMotor(-700);
+
             switch (ThisEvent.EventType) {
                 case TWO_KHZ_BEACON_NOT_DETECTED:
                     ES_Timer_InitTimer(START_TIMER, 250);
-                    nextState = SubBeaconLost1State;
+                    nextState = SubBeaconLost2State;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                     break;

@@ -39,6 +39,7 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
+    FindWallState,
     FindTapeState,
     AlignToTape1State,
     AlignToTape2State,
@@ -134,12 +135,26 @@ ES_Event RunRightToLeftSubHSM(ES_Event ThisEvent) {
             }
             break;
 
+        case FindWallState:
+            Robot_RightMotor(-800);
+            Robot_LeftMotor(-800);
+            switch (ThisEvent.EventType) {
+                case BUMPER_DOWN:
+                    nextState = FindTapeState;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    break;
+                default: // all unhandled events pass the event back up to the next level
+                    break;
+            }
+            break;
+
         case FindTapeState: // in the first state, replace this with correct names
             Robot_RightMotor(800);
             Robot_LeftMotor(800);
             switch (ThisEvent.EventType) {
                 case TAPE_DETECTED:
-                    if (ThisEvent.EventParam & 0b0010) {
+                    if (ThisEvent.EventParam & 0b0001) {
                         nextState = AlignToTape1State;
                         makeTransition = TRUE;
                         ThisEvent.EventType = ES_NO_EVENT;
